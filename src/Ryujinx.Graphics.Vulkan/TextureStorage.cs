@@ -311,16 +311,16 @@ namespace Ryujinx.Graphics.Vulkan
         {
             ImageUsageFlags usage = DefaultUsageFlags;
 
-            if (format.IsDepthOrStencil())
+            if (format.IsDepthOrStencil)
             {
                 usage |= ImageUsageFlags.DepthStencilAttachmentBit;
             }
-            else if (format.IsRtColorCompatible())
+            else if (format.IsRtColorCompatible)
             {
                 usage |= ImageUsageFlags.ColorAttachmentBit;
             }
 
-            if ((format.IsImageCompatible() && isMsImageStorageSupported) || extendedUsage)
+            if ((format.IsImageCompatible && isMsImageStorageSupported) || extendedUsage)
             {
                 usage |= ImageUsageFlags.StorageBit;
             }

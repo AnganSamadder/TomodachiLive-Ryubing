@@ -84,7 +84,7 @@ namespace Ryujinx.Graphics.OpenGL.Image
                 swizzleRgba[2] = temp2;
                 swizzleRgba[3] = temp;
             }
-            else if (Info.Format.IsBgr())
+            else if (Info.Format.IsBgr)
             {
                 // Swap B <-> R for BGRA formats, as OpenGL has no support for them
                 // and we need to manually swap the components on read/write on the GPU.
@@ -119,7 +119,7 @@ namespace Ryujinx.Graphics.OpenGL.Image
             bool srcIsMultisample = Target.IsMultisample;
             bool dstIsMultisample = destinationView.Target.IsMultisample;
 
-            if (dstIsMultisample != srcIsMultisample && Info.Format.IsDepthOrStencil())
+            if (dstIsMultisample != srcIsMultisample && Info.Format.IsDepthOrStencil)
             {
                 int layers = Math.Min(Info.GetLayers(), destinationView.Info.GetLayers() - firstLayer);
                 CopyWithBlitForDepthMultisample(destinationView, 0, firstLayer, layers);
@@ -140,7 +140,7 @@ namespace Ryujinx.Graphics.OpenGL.Image
                 int levels = Math.Min(Info.Levels, destinationView.Info.Levels - firstLevel);
                 _renderer.TextureCopyIncompatible.CopyIncompatibleFormats(this, destinationView, 0, firstLayer, 0, firstLevel, layers, levels);
             }
-            else if (destinationView.Format.IsDepthOrStencil() != Format.IsDepthOrStencil())
+            else if (destinationView.Format.IsDepthOrStencil != Format.IsDepthOrStencil)
             {
                 int layers = Math.Min(Info.GetLayers(), destinationView.Info.GetLayers() - firstLayer);
                 int levels = Math.Min(Info.Levels, destinationView.Info.Levels - firstLevel);
@@ -175,7 +175,7 @@ namespace Ryujinx.Graphics.OpenGL.Image
             bool srcIsMultisample = Target.IsMultisample;
             bool dstIsMultisample = destinationView.Target.IsMultisample;
 
-            if (dstIsMultisample != srcIsMultisample && Info.Format.IsDepthOrStencil())
+            if (dstIsMultisample != srcIsMultisample && Info.Format.IsDepthOrStencil)
             {
                 CopyWithBlitForDepthMultisample(destinationView, srcLayer, dstLayer, 1);
             }
@@ -191,7 +191,7 @@ namespace Ryujinx.Graphics.OpenGL.Image
             {
                 _renderer.TextureCopyIncompatible.CopyIncompatibleFormats(this, destinationView, srcLayer, dstLayer, srcLevel, dstLevel, 1, 1);
             }
-            else if (destinationView.Format.IsDepthOrStencil() != Format.IsDepthOrStencil())
+            else if (destinationView.Format.IsDepthOrStencil != Format.IsDepthOrStencil)
             {
                 int minWidth = Math.Min(Width, destinationView.Width);
                 int minHeight = Math.Min(Height, destinationView.Height);

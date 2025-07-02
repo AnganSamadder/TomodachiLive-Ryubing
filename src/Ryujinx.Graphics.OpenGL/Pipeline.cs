@@ -1178,7 +1178,7 @@ namespace Ryujinx.Graphics.OpenGL
 
                 if (color != null)
                 {
-                    int isBgra = color.Format.IsBgr() ? 1 : 0;
+                    int isBgra = color.Format.IsBgr ? 1 : 0;
 
                     if (_fpIsBgra[index].X != isBgra)
                     {

@@ -534,7 +534,7 @@ namespace Ryujinx.Graphics.Gpu.Engine.Threed
 
                     if (!_context.Capabilities.SupportsBgraFormat)
                     {
-                        _context.SupportBufferUpdater.SetRenderTargetIsBgra(index, color.Format.IsBgr());
+                        _context.SupportBufferUpdater.SetRenderTargetIsBgra(index, color.Format.IsBgr);
                     }
                 }
             }

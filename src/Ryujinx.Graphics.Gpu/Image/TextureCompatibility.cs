@@ -75,13 +75,14 @@ namespace Ryujinx.Graphics.Gpu.Image
 
             if (!caps.SupportsAstcCompression)
             {
-                if (info.FormatInfo.Format.IsAstcUnorm())
+                if (info.FormatInfo.Format.IsAstcUnorm)
                 {
                     return GraphicsConfig.EnableTextureRecompression
                         ? new FormatInfo(Format.Bc7Unorm, 4, 4, 16, 4)
                         : new FormatInfo(Format.R8G8B8A8Unorm, 1, 1, 4, 4);
                 }
-                else if (info.FormatInfo.Format.IsAstcSrgb())
+                
+                if (info.FormatInfo.Format.IsAstcSrgb)
                 {
                     return GraphicsConfig.EnableTextureRecompression
                         ? new FormatInfo(Format.Bc7Srgb, 4, 4, 16, 4)
@@ -151,9 +152,9 @@ namespace Ryujinx.Graphics.Gpu.Image
                     return new FormatInfo(Format.R8G8B8A8Unorm, 1, 1, 4, 4);
                 }
             }
-            else if (!caps.Supports5BitComponentFormat && info.FormatInfo.Format.Is16BitPacked())
+            else if (!caps.Supports5BitComponentFormat && info.FormatInfo.Format.Is16BitPacked)
             {
-                return new FormatInfo(info.FormatInfo.Format.IsBgr() ? Format.B8G8R8A8Unorm : Format.R8G8B8A8Unorm, 1, 1, 4, 4);
+                return new FormatInfo(info.FormatInfo.Format.IsBgr ? Format.B8G8R8A8Unorm : Format.R8G8B8A8Unorm, 1, 1, 4, 4);
             }
 
             return info.FormatInfo;
@@ -644,7 +645,7 @@ namespace Ryujinx.Graphics.Gpu.Image
             FormatInfo lhsFormat = lhs.FormatInfo;
             FormatInfo rhsFormat = rhs.FormatInfo;
 
-            if (lhsFormat.Format.IsDepthOrStencil() || rhsFormat.Format.IsDepthOrStencil())
+            if (lhsFormat.Format.IsDepthOrStencil || rhsFormat.Format.IsDepthOrStencil)
             {
                 bool forSampler = flags.HasFlag(TextureSearchFlags.ForSampler);
                 bool depthAlias = flags.HasFlag(TextureSearchFlags.DepthAlias);
