@@ -83,7 +83,7 @@ namespace Ryujinx.Graphics.Shader.CodeGen.Glsl
             {
                 if (context.Definitions.Stage == ShaderStage.Geometry)
                 {
-                    string inPrimitive = context.Definitions.InputTopology.ToGlslString();
+                    string inPrimitive = context.Definitions.InputTopology.GlslString;
 
                     context.AppendLine($"layout (invocations = {context.Definitions.ThreadsPerInputPrimitive}, {inPrimitive}) in;");
 
@@ -98,7 +98,7 @@ namespace Ryujinx.Graphics.Shader.CodeGen.Glsl
                     }
                     else
                     {
-                        string outPrimitive = context.Definitions.OutputTopology.ToGlslString();
+                        string outPrimitive = context.Definitions.OutputTopology.GlslString;
                         int maxOutputVertices = context.Definitions.MaxOutputVertices;
 
                         context.AppendLine($"layout ({outPrimitive}, max_vertices = {maxOutputVertices}) out;");

@@ -812,10 +812,10 @@ namespace Ryujinx.Graphics.OpenGL
             EnsureFramebuffer();
 
             _framebuffer.SetDualSourceBlend(
-                blend.ColorSrcFactor.IsDualSource() ||
-                blend.ColorDstFactor.IsDualSource() ||
-                blend.AlphaSrcFactor.IsDualSource() ||
-                blend.AlphaDstFactor.IsDualSource());
+                blend.ColorSrcFactor.IsDualSource ||
+                blend.ColorDstFactor.IsDualSource ||
+                blend.AlphaSrcFactor.IsDualSource ||
+                blend.AlphaDstFactor.IsDualSource);
 
             if (_blendConstant != blend.BlendConstant)
             {
