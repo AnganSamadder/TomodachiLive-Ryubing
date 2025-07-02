@@ -293,7 +293,7 @@ namespace Ryujinx.Graphics.Shader.Translation
 
         public AggregateType GetFragmentOutputColorType(int location)
         {
-            return AggregateType.Vector4 | _graphicsState.FragmentOutputTypes[location].ToAggregateType();
+            return AggregateType.Vector4 | _graphicsState.FragmentOutputTypes[location].Aggregate;
         }
 
         public AggregateType GetUserDefinedType(int location, bool isOutput)
@@ -307,7 +307,7 @@ namespace Ryujinx.Graphics.Shader.Translation
 
             if (Stage == ShaderStage.Vertex && !isOutput)
             {
-                type |= _graphicsState.AttributeTypes[location].ToAggregateType(SupportsScaledVertexFormats);
+                type |= _graphicsState.AttributeTypes[location].AsAggregate(SupportsScaledVertexFormats);
             }
             else
             {

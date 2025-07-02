@@ -385,7 +385,7 @@ namespace Ryujinx.Graphics.Shader.CodeGen.Spirv
 
         private static void DeclarePerVertexBlock(CodeGenContext context)
         {
-            if (context.Definitions.Stage.IsVtg())
+            if (context.Definitions.Stage.IsVtg)
             {
                 if (context.Definitions.Stage != ShaderStage.Vertex)
                 {
