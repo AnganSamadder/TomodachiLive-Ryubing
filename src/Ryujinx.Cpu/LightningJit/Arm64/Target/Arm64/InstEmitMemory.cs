@@ -544,7 +544,7 @@ namespace Ryujinx.Cpu.LightningJit.Arm64.Target.Arm64
         {
             Operand basePointer = new(regAlloc.FixedPageTableRegister, RegisterType.Integer, OperandType.I64);
 
-            if (mmType.IsHostTracked())
+            if (mmType.IsHostTracked)
             {
                 int tempRegister = regAlloc.AllocateTempGprRegister();
 
@@ -562,7 +562,7 @@ namespace Ryujinx.Cpu.LightningJit.Arm64.Target.Arm64
 
                 regAlloc.FreeTempGprRegister(tempRegister);
             }
-            else if (mmType.IsHostMapped())
+            else if (mmType.IsHostMapped)
             {
                 if (mmType == MemoryManagerType.HostMapped)
                 {
