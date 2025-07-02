@@ -55,7 +55,7 @@ namespace Ryujinx.Cpu.LightningJit.Arm64.Target.Arm64
             ulong pc,
             uint encoding)
         {
-            if (name.IsPrefetchMemory() && mmType == MemoryManagerType.HostTrackedUnsafe)
+            if (name.IsPrefetchMemory && mmType == MemoryManagerType.HostTrackedUnsafe)
             {
                 // Prefetch to invalid addresses do not cause faults, so for memory manager
                 // types where we need to access the page table before doing the prefetch,
