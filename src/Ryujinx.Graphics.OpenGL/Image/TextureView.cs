@@ -320,7 +320,7 @@ namespace Ryujinx.Graphics.OpenGL.Image
                 throw new NotSupportedException("Stride conversion for texture copy to buffer not supported.");
             }
 
-            GL.BindBuffer(BufferTarget.PixelPackBuffer, range.Handle.ToInt32());
+            GL.BindBuffer(BufferTarget.PixelPackBuffer, range.Handle);
 
             FormatInfo format = FormatTable.GetFormatInfo(Info.Format);
             if (format.PixelFormat == PixelFormat.DepthStencil)
