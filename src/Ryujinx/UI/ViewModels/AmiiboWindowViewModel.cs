@@ -36,17 +36,13 @@ namespace Ryujinx.Ava.UI.ViewModels
         private readonly HttpClient _httpClient;
         private readonly AmiiboWindow _owner;
 
-        private Bitmap _amiiboImage;
         private List<AmiiboApi> _amiiboList;
         private AvaloniaList<AmiiboApi> _amiibos;
         private ObservableCollection<string> _amiiboSeries;
 
         private int _amiiboSelectedIndex;
         private int _seriesSelectedIndex;
-        private bool _enableScanning;
         private bool _showAllAmiibo;
-        private bool _useRandomUuid = _cachedUseRandomUuid;
-        private string _usage;
 
         private static readonly AmiiboJsonSerializerContext _serializerContext = new(JsonHelper.GetDefaultSerializerOptions());
 
@@ -83,14 +79,14 @@ namespace Ryujinx.Ava.UI.ViewModels
 
         public bool UseRandomUuid
         {
-            get => _useRandomUuid;
+            get;
             set
             {
-                _cachedUseRandomUuid = _useRandomUuid = value;
+                _cachedUseRandomUuid = field = value;
 
                 OnPropertyChanged();
             }
-        }
+        } = _cachedUseRandomUuid;
 
         public bool ShowAllAmiibo
         {
@@ -156,10 +152,10 @@ namespace Ryujinx.Ava.UI.ViewModels
 
         public Bitmap AmiiboImage
         {
-            get => _amiiboImage;
+            get;
             set
             {
-                _amiiboImage = value;
+                field = value;
 
                 OnPropertyChanged();
             }
@@ -167,10 +163,10 @@ namespace Ryujinx.Ava.UI.ViewModels
 
         public string Usage
         {
-            get => _usage;
+            get;
             set
             {
-                _usage = value;
+                field = value;
 
                 OnPropertyChanged();
             }
@@ -178,10 +174,10 @@ namespace Ryujinx.Ava.UI.ViewModels
 
         public bool EnableScanning
         {
-            get => _enableScanning;
+            get;
             set
             {
-                _enableScanning = value;
+                field = value;
 
                 OnPropertyChanged();
             }

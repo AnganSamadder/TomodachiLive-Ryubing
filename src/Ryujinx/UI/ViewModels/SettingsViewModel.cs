@@ -53,7 +53,7 @@ namespace Ryujinx.Ava.UI.ViewModels
         [ObservableProperty] private bool _isVulkanAvailable = true;
         [ObservableProperty] private bool _gameListNeedsRefresh;
         private readonly List<string> _gpuIds = [];
-        public bool _useInputGlobalConfig;
+        private bool _useInputGlobalConfig;
         private int _graphicsBackendIndex;
         private int _scalingFilter;
         private int _scalingFilterLevel;
