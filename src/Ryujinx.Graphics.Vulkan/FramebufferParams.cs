@@ -250,12 +250,12 @@ namespace Ryujinx.Graphics.Vulkan
 
                     Format format = texture.Info.Format;
 
-                    if (format.IsInteger())
+                    if (format.IsInt)
                     {
                         attachmentIntegerFormatMask |= 1u << bindIndex;
                     }
 
-                    allFormatsFloatOrSrgb &= format.IsFloatOrSrgb();
+                    allFormatsFloatOrSrgb &= format.IsFloatOrSrgb;
 
                     width = Math.Min(width, (uint)texture.Width);
                     height = Math.Min(height, (uint)texture.Height);
