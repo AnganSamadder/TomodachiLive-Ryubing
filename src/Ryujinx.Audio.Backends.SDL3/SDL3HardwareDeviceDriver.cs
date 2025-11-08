@@ -135,7 +135,6 @@ namespace Ryujinx.Audio.Backends.SDL3
             // From SDL 3 and on, SDL requires us to set this as a hint
             SDL_SetHint(SDL_HINT_AUDIO_DEVICE_SAMPLE_FRAMES, $"{sampleCount}");
             SDL_AudioStream* device = SDL_OpenAudioDeviceStream(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, &got, pCallback, 0);
-            Console.WriteLine(got.freq);
 
             if (device == null)
             {
