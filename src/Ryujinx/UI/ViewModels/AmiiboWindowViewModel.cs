@@ -2,6 +2,7 @@ using Avalonia;
 using Avalonia.Collections;
 using Avalonia.Media.Imaging;
 using Avalonia.Threading;
+using CommunityToolkit.Mvvm.ComponentModel;
 using Ryujinx.Ava.Common.Locale;
 using Ryujinx.Ava.Common.Models.Amiibo;
 using Ryujinx.Ava.UI.Helpers;
@@ -23,7 +24,7 @@ using System.Threading.Tasks;
 
 namespace Ryujinx.Ava.UI.ViewModels
 {
-    public class AmiiboWindowViewModel : BaseModel, IDisposable
+    public partial class AmiiboWindowViewModel : BaseModel, IDisposable
     {
         // ReSharper disable once InconsistentNaming
         private static bool _cachedUseRandomUuid;
@@ -150,38 +151,14 @@ namespace Ryujinx.Ava.UI.ViewModels
             }
         }
 
-        public Bitmap AmiiboImage
-        {
-            get;
-            set
-            {
-                field = value;
+        [ObservableProperty]
+        public partial Bitmap AmiiboImage { get; set; }
 
-                OnPropertyChanged();
-            }
-        }
+        [ObservableProperty]
+        public partial string Usage { get; set; }
 
-        public string Usage
-        {
-            get;
-            set
-            {
-                field = value;
-
-                OnPropertyChanged();
-            }
-        }
-
-        public bool EnableScanning
-        {
-            get;
-            set
-            {
-                field = value;
-
-                OnPropertyChanged();
-            }
-        }
+        [ObservableProperty]
+        public partial bool EnableScanning { get; set; }
 
         public void Scan()
         {
