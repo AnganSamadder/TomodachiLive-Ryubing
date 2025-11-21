@@ -10,7 +10,7 @@ using Ryujinx.Common.Logging;
 using System;
 using System.IO;
 
-namespace Ryujinx.UI.SetupWizard
+namespace Ryujinx.Ava.UI.SetupWizard
 {
     public partial class RyujinxSetupWizardWindow : StyleableAppWindow
     {

@@ -7,7 +7,7 @@ using Ryujinx.Ava.Common.Locale;
 using Ryujinx.Ava.UI.ViewModels;
 using System.Threading.Tasks;
 
-namespace Ryujinx.UI.SetupWizard.Pages
+namespace Ryujinx.Ava.UI.SetupWizard.Pages
 {
     public partial class SetupKeysPageViewModel : BaseModel
     {

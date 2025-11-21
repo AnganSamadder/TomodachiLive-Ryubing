@@ -31,7 +31,7 @@ using Ryujinx.HLE.HOS;
 using Ryujinx.HLE.HOS.Services.Account.Acc;
 using Ryujinx.Input.HLE;
 using Ryujinx.Input.SDL3;
-using Ryujinx.UI.SetupWizard;
+using Ryujinx.Ava.UI.SetupWizard;
 using System;
 using System.Collections.Generic;
 using System.Linq;

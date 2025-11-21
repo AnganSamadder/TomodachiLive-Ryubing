@@ -4,7 +4,7 @@ using Avalonia.Controls.Notifications;
 using Avalonia.Threading;
 using Ryujinx.Ava.Common.Locale;
 using Ryujinx.Common;
-using Ryujinx.UI.SetupWizard;
+using Ryujinx.Ava.UI.SetupWizard;
 using System;
 using System.Collections.Concurrent;
 using System.Threading;

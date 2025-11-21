@@ -15,7 +15,7 @@ using Ryujinx.Ava.UI.Windows;
 using Ryujinx.Ava.Utilities;
 using Ryujinx.Common;
 using Ryujinx.Common.Logging;
-using Ryujinx.UI.SetupWizard;
+using Ryujinx.Ava.UI.SetupWizard;
 using System;
 using System.Diagnostics;
 
