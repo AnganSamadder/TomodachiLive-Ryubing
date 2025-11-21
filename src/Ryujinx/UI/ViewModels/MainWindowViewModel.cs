@@ -45,6 +45,7 @@ using Ryujinx.HLE.HOS.Services.Account.Acc;
 using Ryujinx.HLE.HOS.Services.Nfc.AmiiboDecryption;
 using Ryujinx.HLE.UI;
 using Ryujinx.Input.HLE;
+using Ryujinx.UI.SetupWizard;
 using SkiaSharp;
 using System;
 using System.Collections.Generic;
@@ -870,7 +871,7 @@ namespace Ryujinx.Ava.UI.ViewModels
 
         private void RefreshGrid()
         {
-            IObservableList<ApplicationData> appsList = Applications.ToObservableChangeSet()
+            _ = Applications.ToObservableChangeSet()
                 .Filter(Filter)
                 .Sort(GetComparer())
                 .Bind(out ReadOnlyObservableCollection<ApplicationData> apps)
@@ -1013,7 +1014,7 @@ namespace Ryujinx.Ava.UI.ViewModels
             }
         }
 
-        private async Task HandleKeysInstallation(string filename)
+        public async Task HandleKeysInstallation(string filename)
         {
             try
             {

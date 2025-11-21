@@ -1,0 +1,77 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:ext="clr-namespace:Ryujinx.Ava.Common.Markup"
+             xmlns:controls="clr-namespace:Ryujinx.Ava.UI.Controls"
+             xmlns:helpers="clr-namespace:Ryujinx.Ava.UI.Helpers"
+             xmlns:fa="using:Projektanker.Icons.Avalonia"
+             xmlns:wiz="using:Ryujinx.Ava.Systems.SetupWizard"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:DataType="wiz:SetupWizardPage"
+             x:Class="Ryujinx.Systems.SetupWizard.SetupWizardPageView">
+    <Grid RowDefinitions="*,Auto" Margin="60">
+        <ScrollViewer>
+            <Grid RowDefinitions="Auto,*,Auto">
+                <TextBlock Grid.Row="0" 
+                           TextWrapping="WrapWithOverflow"
+                           FontFamily="{StaticResource HyliaGlyph}"
+                           FontSize="46"
+                           Text="{Binding Title}" />
+
+                <ContentPresenter Grid.Row="1" 
+                                  Content="{Binding}"
+                                  IsVisible="{Binding !#InfoToggle.IsChecked}"
+                                  TextWrapping="WrapWithOverflow"
+                                  Margin="0,15,0,0">
+                    <ContentPresenter.DataTemplates>
+                        <DataTemplate DataType="{x:Type wiz:SetupWizardPage}">
+                            <ContentControl Content="{Binding Content}" VerticalAlignment="Stretch"/>
+                        </DataTemplate>
+                    </ContentPresenter.DataTemplates>
+                </ContentPresenter>
+                
+                <Grid Grid.Row="2" 
+                      ColumnDefinitions="Auto,*" 
+                      IsVisible="{Binding #InfoToggle.IsChecked}">
+                    <StackPanel Spacing="5" VerticalAlignment="Top">
+                        <HyperlinkButton NavigateUri="https://discord.gg/PEuzjrFXUA" Content="Join Discord" />
+                    </StackPanel>
+                    <ContentPresenter Content="{Binding}"
+                                      Grid.Column="1"
+                                      Margin="20,0,0,0"
+                                      TextWrapping="WrapWithOverflow">
+                        <ContentPresenter.DataTemplates>
+                            <DataTemplate DataType="{x:Type wiz:SetupWizardPage}">
+                                <ContentControl Content="{Binding HelpContent}" />
+                            </DataTemplate>
+                        </ContentPresenter.DataTemplates>
+                    </ContentPresenter>
+                </Grid>
+            </Grid>
+        </ScrollViewer>
+
+        <Grid ColumnDefinitions="Auto,Auto,*" Grid.Row="1">
+            <ToggleButton Name="InfoToggle"
+                          Padding="6">
+                <fa:Icon Value="fa-solid fa-circle-info" />
+            </ToggleButton>
+            
+            <Button IsVisible="{Binding !IsFirstPage}"
+                    Grid.Column="1"
+                    Content="{ext:Locale SetupWizardActionBack}"
+                    Margin="10,0,0,0"
+                    Command="{Binding MoveBackCommand}" />
+            <StackPanel Orientation="Horizontal">
+            </StackPanel>
+
+            <StackPanel Orientation="Horizontal"
+                        HorizontalAlignment="Right"
+                        Grid.Column="2">
+                <Button Content="{Binding ActionContent}"
+                        Command="{Binding MoveNextCommand}" />
+            </StackPanel>
+        </Grid>
+    </Grid>
+</UserControl>
+

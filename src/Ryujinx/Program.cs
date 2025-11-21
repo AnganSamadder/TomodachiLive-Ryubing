@@ -32,6 +32,8 @@ namespace Ryujinx.Ava
 {
     internal static class Program
     {
+        public static bool IsFirstStart { get; set; }
+
         public static double WindowScaleFactor { get; set; }
         public static double DesktopScaleFactor { get; set; } = 1.0;
         public static string Version { get; private set; }
@@ -221,7 +223,6 @@ namespace Ryujinx.Ava
 
         public static void ReloadConfig(bool isRunGameWithCustomConfig = false)
         {
-
             string localConfigurationPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, ReleaseInformation.ConfigName);
             string appDataConfigurationPath = Path.Combine(AppDataManager.BaseDirPath, ReleaseInformation.ConfigName);
 
@@ -247,6 +248,7 @@ namespace Ryujinx.Ava
 
                 ConfigurationState.Instance.LoadDefault();
                 ConfigurationState.Instance.ToFileFormat().SaveConfig(ConfigurationPath);
+                IsFirstStart = true;
             }
             else
             {

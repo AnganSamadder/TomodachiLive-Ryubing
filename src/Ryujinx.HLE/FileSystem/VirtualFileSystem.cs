@@ -219,6 +219,8 @@ namespace Ryujinx.HLE.FileSystem
             FileSystemServerInitializer.InitializeWithConfig(fsServerClient, fsServer, fsServerConfig);
         }
 
+        public bool HasKeySet { get; private set; }
+
         public void ReloadKeySet()
         {
             KeySet ??= KeySet.CreateDefaultKeySet();
@@ -234,6 +236,8 @@ namespace Ryujinx.HLE.FileSystem
             }
 
             LoadSetAtPath(AppDataManager.KeysDirPath);
+
+            HasKeySet = (prodKeyFile != null && titleKeyFile != null) || prodKeyFile != null;
 
             void LoadSetAtPath(string basePath)
             {
@@ -263,7 +267,12 @@ namespace Ryujinx.HLE.FileSystem
                 }
             }
 
-            ExternalKeyReader.ReadKeyFile(KeySet, prodKeyFile, devKeyFile, titleKeyFile, consoleKeyFile, null);
+            ExternalKeyReader.ReadKeyFile(
+                KeySet, 
+                prodKeyFile, 
+                devKeyFile, 
+                titleKeyFile, 
+                consoleKeyFile);
         }
 
         public void ImportTickets(IFileSystem fs)

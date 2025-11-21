@@ -30,6 +30,7 @@ using Ryujinx.HLE.HOS;
 using Ryujinx.HLE.HOS.Services.Account.Acc;
 using Ryujinx.Input.HLE;
 using Ryujinx.Input.SDL3;
+using Ryujinx.UI.SetupWizard;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -138,7 +139,18 @@ namespace Ryujinx.Ava.UI.Windows
 
             Executor.ExecuteBackgroundAsync(async () =>
             {
-                await ShowIntelMacWarningAsync();
+                await Dispatcher.UIThread.InvokeAsync(async () =>
+                {
+                    await ShowIntelMacWarningAsync();
+
+                    if (Program.IsFirstStart && RyujinxSetupWizardWindow.CanShowSetupWizard)
+                    {
+                        Task windowTask = ShowAsync(RyujinxSetupWizardWindow.CreateWindow(ViewModel, out var wiz), this);
+                        _ = wiz.Start();
+                        await windowTask;
+                    }
+                });
+
                 if (CommandLineState.FirmwareToInstallPathArg.TryGet(out FilePath fwPath))
                 {
                     if (fwPath is { ExistsAsFile: true, Extension: "xci" or "zip" } || fwPath.ExistsAsDirectory)
@@ -150,6 +162,8 @@ namespace Ryujinx.Ava.UI.Windows
                     else
                         Logger.Notice.Print(LogClass.UI, "Invalid firmware type provided. Path must be a directory, or a .zip or .xci file.");
                 }
+
+                await CheckLaunchState();
             });
         }
 
@@ -399,7 +413,7 @@ namespace Ryujinx.Ava.UI.Windows
                     }
                 }
             }
-            else
+            else if (!RyujinxSetupWizardWindow.IsUsingSetupWizard)
             {
                 ShowKeyErrorOnLoad = false;
 
@@ -538,8 +552,6 @@ namespace Ryujinx.Ava.UI.Windows
             {
                 LoadApplications();
             }
-
-            _ = CheckLaunchState();
         }
 
         private void SetMainContent(Control content = null)

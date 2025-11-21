@@ -18,7 +18,6 @@
         <viewModels:CompatibilityViewModel />
     </window:StyleableAppWindow.DataContext>
     <Grid RowDefinitions="Auto,Auto,*">
-        
         <!-- UI FlushControls -->
         <Grid Grid.Row="0" ColumnDefinitions="Auto,*,Auto,Auto,Auto" Name="FlushControls">
             <controls:RyujinxLogo
