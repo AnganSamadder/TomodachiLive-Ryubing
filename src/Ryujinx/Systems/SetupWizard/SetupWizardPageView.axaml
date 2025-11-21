@@ -59,8 +59,6 @@
                     Content="{ext:Locale SetupWizardActionBack}"
                     Margin="10,0,0,0"
                     Command="{Binding MoveBackCommand}" />
-            <StackPanel Orientation="Horizontal">
-            </StackPanel>
 
             <StackPanel Orientation="Horizontal"
                         HorizontalAlignment="Right"

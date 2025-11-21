@@ -9,7 +9,7 @@ namespace Ryujinx.Ava.Systems.SetupWizard
         /// <summary>
         /// Define the logic and flow of this <see cref="BaseSetupWizard"/>.
         /// </summary>
-        public abstract ValueTask Start();
+        public abstract Task Start();
 
         protected ValueTask<bool> FirstPage()
         {

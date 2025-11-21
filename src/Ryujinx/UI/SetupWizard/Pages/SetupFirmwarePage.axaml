@@ -1,0 +1,27 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:markup="clr-namespace:Ryujinx.Ava.Common.Markup"
+             xmlns:pages="clr-namespace:Ryujinx.UI.SetupWizard.Pages"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:DataType="pages:SetupFirmwarePageViewModel"
+             x:Class="Ryujinx.UI.SetupWizard.Pages.SetupFirmwarePage">
+    <StackPanel>
+        <TextBlock Text="{markup:Locale SetupWizardFirmwarePageDescription}"/>
+        <Grid ColumnDefinitions="*" RowDefinitions="*,Auto">
+            <TextBox Name="FirmwarePathField" Margin="0, 10, 0, 5" Text="{Binding FirmwareSourcePath}" IsReadOnly="True" />
+            <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="3.5">
+                <Button
+                        Content="{markup:Locale SetupWizardFirmwarePageFolderBrowse}"
+                        Command="{Binding BrowseFolderCommand}"
+                        CommandParameter="{Binding #FirmwarePathField}"/>
+                <Button
+                        Content="{markup:Locale SetupWizardFirmwarePageFileBrowse}"
+                        Command="{Binding BrowseFileCommand}"
+                        CommandParameter="{Binding #FirmwarePathField}"/>
+            </StackPanel>
+        </Grid>
+    </StackPanel>
+</UserControl>
+

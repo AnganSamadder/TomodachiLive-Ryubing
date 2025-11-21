@@ -21,7 +21,7 @@ namespace Ryujinx.Ava.Systems.SetupWizard
         [ObservableProperty]
         public partial object? Content { get; set; }
 
-        [ObservableProperty] public partial object? HelpContent { get; set; } = "test";
+        [ObservableProperty] public partial object? HelpContent { get; set; }
 
         [ObservableProperty]
         public partial object? ActionContent { get; set; } = LocaleManager.Instance[LocaleKeys.SetupWizardActionNext];

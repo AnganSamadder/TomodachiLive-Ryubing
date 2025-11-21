@@ -1377,8 +1377,8 @@ namespace Ryujinx.Ava.UI.ViewModels
                         Patterns = ["*.zip"],
                         AppleUniformTypeIdentifiers = ["public.zip-archive"],
                         MimeTypes = ["application/zip"],
-                    },
-                },
+                    }
+                }
             });
 
             if (result.HasValue)
@@ -1758,12 +1758,11 @@ namespace Ryujinx.Ava.UI.ViewModels
         public static void UpdateGameMetadata(string titleId, TimeSpan playTime)
             => ApplicationLibrary.LoadAndSaveMetaData(titleId, appMetadata => appMetadata.UpdatePostGame(playTime));
 
-        public void RefreshFirmwareStatus()
+        public void RefreshFirmwareStatus(SystemVersion version = null)
         {
-            SystemVersion version = null;
             try
             {
-                version = ContentManager.GetCurrentFirmwareVersion();
+                version ??= ContentManager.GetCurrentFirmwareVersion();
             }
             catch (Exception)
             {

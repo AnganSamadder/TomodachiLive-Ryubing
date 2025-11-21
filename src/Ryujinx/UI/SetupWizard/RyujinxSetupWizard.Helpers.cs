@@ -45,7 +45,7 @@ namespace Ryujinx.Ava.UI.SetupWizard
                                 LocaleKeys.DialogKeysInstallerKeysNotFoundErrorMessage, directory);
                         }
 
-                        NotificationHelper.ShowError(message);
+                        NotificationHelper.ShowError(message, waitingExit: true);
                     }
                     finally
                     {
@@ -57,7 +57,7 @@ namespace Ryujinx.Ava.UI.SetupWizard
             }
             catch (MissingKeyException ex)
             {
-                NotificationHelper.ShowError(ex.ToString());
+                NotificationHelper.ShowError(ex.ToString(), waitingExit: true);
                 return Result.Failure(NoKeysFoundInFolder.Shared);
             }
             catch (Exception ex)

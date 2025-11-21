@@ -91,7 +91,11 @@ namespace Ryujinx.Common
 
         public void Dispose()
         {
-            _queue.CompleteAdding();
+            try
+            {
+                _queue.CompleteAdding();
+            } catch (ObjectDisposedException) {}
+
             _cts.Cancel();
             _workerThread.Join();
 

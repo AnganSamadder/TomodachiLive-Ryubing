@@ -149,7 +149,7 @@ namespace Ryujinx.Ava.UI.Windows
                         Task windowTask = ShowAsync(
                             RyujinxSetupWizardWindow.CreateWindow(ViewModel, out BaseSetupWizard wiz), 
                             this);
-                        _ = wiz.Start().AsTask();
+                        _ = wiz.Start();
                         await windowTask;
                     }
                 });
