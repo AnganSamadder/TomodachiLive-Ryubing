@@ -3,7 +3,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Ryujinx.Ava.Common.Locale;
 using Ryujinx.Ava.UI.ViewModels;
-using Ryujinx.Systems.SetupWizard;
+using Ryujinx.Ava.Systems.SetupWizard;
 using System.Threading;
 using System.Threading.Tasks;
 

@@ -15,6 +15,7 @@ using Ryujinx.Ava.Systems;
 using Ryujinx.Ava.Systems.AppLibrary;
 using Ryujinx.Ava.Systems.Configuration;
 using Ryujinx.Ava.Systems.Configuration.UI;
+using Ryujinx.Ava.Systems.SetupWizard;
 using Ryujinx.Ava.UI.Applet;
 using Ryujinx.Ava.UI.Helpers;
 using Ryujinx.Ava.UI.Models;
@@ -145,8 +146,10 @@ namespace Ryujinx.Ava.UI.Windows
 
                     if (Program.IsFirstStart && RyujinxSetupWizardWindow.CanShowSetupWizard)
                     {
-                        Task windowTask = ShowAsync(RyujinxSetupWizardWindow.CreateWindow(ViewModel, out var wiz), this);
-                        _ = wiz.Start();
+                        Task windowTask = ShowAsync(
+                            RyujinxSetupWizardWindow.CreateWindow(ViewModel, out BaseSetupWizard wiz), 
+                            this);
+                        _ = wiz.Start().AsTask();
                         await windowTask;
                     }
                 });

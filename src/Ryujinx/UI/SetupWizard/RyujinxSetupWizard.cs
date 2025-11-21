@@ -3,13 +3,11 @@ using Ryujinx.Ava.Common.Locale;
 using Ryujinx.Ava.Systems.Configuration;
 using Ryujinx.Ava.Systems.SetupWizard;
 using Ryujinx.Ava.UI.ViewModels;
-using Ryujinx.Common.Logging;
 using Ryujinx.UI.SetupWizard;
 using Ryujinx.UI.SetupWizard.Pages;
 using System;
 using System.IO;
 using System.Threading.Tasks;
-using Logger = Ryujinx.Common.Logging.Logger;
 
 namespace Ryujinx.Ava.UI.SetupWizard
 {

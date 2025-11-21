@@ -4,7 +4,7 @@ using Avalonia.Markup.Xaml;
 using Ryujinx.Ava.Systems.SetupWizard;
 using Ryujinx.Ava.UI.Controls;
 
-namespace Ryujinx.Systems.SetupWizard
+namespace Ryujinx.Ava.Systems.SetupWizard
 {
     public partial class SetupWizardPageView : RyujinxControl<SetupWizardPage>
     {

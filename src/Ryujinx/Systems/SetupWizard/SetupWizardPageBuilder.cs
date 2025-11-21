@@ -5,7 +5,7 @@ using Ryujinx.Ava.Common.Locale;
 using Ryujinx.Ava.Systems.SetupWizard;
 using System.Threading.Tasks;
 
-namespace Ryujinx.Systems.SetupWizard
+namespace Ryujinx.Ava.Systems.SetupWizard
 {
     public class SetupWizardPageBuilder(ContentPresenter presenter, bool isFirstPage = false)
     {

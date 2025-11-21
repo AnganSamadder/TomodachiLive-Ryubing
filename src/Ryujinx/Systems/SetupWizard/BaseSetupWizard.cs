@@ -1,6 +1,5 @@
 using Avalonia.Controls.Presenters;
 using Ryujinx.Ava.Common.Locale;
-using Ryujinx.Systems.SetupWizard;
 using System.Threading.Tasks;
 
 namespace Ryujinx.Ava.Systems.SetupWizard

@@ -1,5 +1,6 @@
 using Ryujinx.Ava;
 using Ryujinx.Ava.Systems.Configuration;
+using Ryujinx.Ava.Systems.SetupWizard;
 using Ryujinx.Ava.UI.SetupWizard;
 using Ryujinx.Ava.UI.ViewModels;
 using Ryujinx.Ava.UI.Windows;
@@ -24,7 +25,7 @@ namespace Ryujinx.UI.SetupWizard
             }
         }
 
-        public static RyujinxSetupWizardWindow CreateWindow(MainWindowViewModel mwvm, out RyujinxSetupWizard setupWizard)
+        public static RyujinxSetupWizardWindow CreateWindow(MainWindowViewModel mwvm, out BaseSetupWizard setupWizard)
         {
             RyujinxSetupWizardWindow window = new();
             window.DataContext = setupWizard = new RyujinxSetupWizard(window.WizardPresenter, mwvm, () =>

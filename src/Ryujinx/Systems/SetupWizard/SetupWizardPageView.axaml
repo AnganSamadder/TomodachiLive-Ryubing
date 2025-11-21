@@ -9,7 +9,7 @@
              xmlns:wiz="using:Ryujinx.Ava.Systems.SetupWizard"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:DataType="wiz:SetupWizardPage"
-             x:Class="Ryujinx.Systems.SetupWizard.SetupWizardPageView">
+             x:Class="Ryujinx.Ava.Systems.SetupWizard.SetupWizardPageView">
     <Grid RowDefinitions="*,Auto" Margin="60">
         <ScrollViewer>
             <Grid RowDefinitions="Auto,*,Auto">
