@@ -1,6 +1,7 @@
 using Ryujinx.Ava;
 using Ryujinx.Ava.Systems.Configuration;
 using Ryujinx.Ava.Systems.SetupWizard;
+using Ryujinx.Ava.UI.Helpers;
 using Ryujinx.Ava.UI.SetupWizard;
 using Ryujinx.Ava.UI.ViewModels;
 using Ryujinx.Ava.UI.Windows;
@@ -30,11 +31,13 @@ namespace Ryujinx.UI.SetupWizard
             RyujinxSetupWizardWindow window = new();
             window.DataContext = setupWizard = new RyujinxSetupWizard(window.WizardPresenter, mwvm, () =>
             {
+                NotificationHelper.SetNotificationManager(RyujinxApp.MainWindow);
                 window.Close();
                 IsUsingSetupWizard = false;
             });
             window.Height = 600;
             window.Width = 750;
+            NotificationHelper.SetNotificationManager(window);
             return window;
         }
 

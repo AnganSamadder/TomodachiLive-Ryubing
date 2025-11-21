@@ -4,6 +4,7 @@ using Avalonia.Controls.Notifications;
 using Avalonia.Threading;
 using Ryujinx.Ava.Common.Locale;
 using Ryujinx.Common;
+using Ryujinx.UI.SetupWizard;
 using System;
 using System.Collections.Concurrent;
 using System.Threading;
@@ -48,6 +49,8 @@ namespace Ryujinx.Ava.UI.Helpers
 
             host.Closing += (sender, args) =>
             {
+                if (sender is RyujinxSetupWizardWindow) return;
+                
                 if (maybeAsyncWorkQueue.IsValueCreated)
                 {
                     maybeAsyncWorkQueue.Value.Dispose();

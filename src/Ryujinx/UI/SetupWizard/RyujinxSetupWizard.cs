@@ -1,4 +1,5 @@
 using Avalonia.Controls.Presenters;
+using Gommon;
 using Ryujinx.Ava.Common.Locale;
 using Ryujinx.Ava.Systems.Configuration;
 using Ryujinx.Ava.Systems.SetupWizard;
@@ -11,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace Ryujinx.Ava.UI.SetupWizard
 {
-    public class RyujinxSetupWizard(ContentPresenter presenter, MainWindowViewModel mwvm, Action onClose) : BaseSetupWizard(presenter)
+    public partial class RyujinxSetupWizard(ContentPresenter presenter, MainWindowViewModel mwvm, Action onClose) : BaseSetupWizard(presenter)
     {
         private bool _configWasModified = false;
 
@@ -39,7 +40,11 @@ namespace Ryujinx.Ava.UI.SetupWizard
                 if (!Directory.Exists(kpvm.KeysFolderPath))
                     goto Retry;
 
-                await mwvm.HandleKeysInstallation(kpvm.KeysFolderPath);
+                Result installResult = InstallKeys(kpvm.KeysFolderPath);
+                if (!installResult.IsSuccess)
+                {
+                    goto Retry;
+                }
             }
 
             Firmware:
