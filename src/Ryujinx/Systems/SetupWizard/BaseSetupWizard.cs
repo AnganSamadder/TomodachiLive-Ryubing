@@ -22,9 +22,7 @@ namespace Ryujinx.Ava.Systems.SetupWizard
                 .Show();
         }
 
-        protected SetupWizardPageBuilder NextPage()
-        {
-            return new SetupWizardPageBuilder(presenter);
-        }
+        protected SetupWizardPageBuilder NextPage() 
+            => new(presenter);
     }
 }

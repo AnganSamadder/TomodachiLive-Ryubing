@@ -2,7 +2,6 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Presenters;
 using Ryujinx.Ava.Common.Locale;
-using Ryujinx.Ava.Systems.SetupWizard;
 using System.Threading.Tasks;
 
 namespace Ryujinx.Ava.Systems.SetupWizard
@@ -28,15 +27,17 @@ namespace Ryujinx.Ava.Systems.SetupWizard
 
         public SetupWizardPageBuilder WithContent(object? content)
         {
-            if (content is StyledElement { Parent: ContentControl parent }) {
+            if (content is StyledElement { Parent: ContentControl parent })
+            {
                 parent.Content = null;
             }
-        
+
             _page.Content = content;
             return this;
         }
 
-        public SetupWizardPageBuilder WithHelpContent(LocaleKeys content) => WithHelpContent(LocaleManager.Instance[content]);
+        public SetupWizardPageBuilder WithHelpContent(LocaleKeys content) =>
+            WithHelpContent(LocaleManager.Instance[content]);
 
         public SetupWizardPageBuilder WithHelpContent(object? content)
         {
@@ -46,14 +47,13 @@ namespace Ryujinx.Ava.Systems.SetupWizard
 
         public SetupWizardPageBuilder WithContent<TControl>(object? context = null) where TControl : Control, new()
         {
-            _page.Content = new TControl {
-                DataContext = context
-            };
-        
+            _page.Content = new TControl { DataContext = context };
+
             return this;
         }
 
-        public SetupWizardPageBuilder WithActionContent(LocaleKeys content) => WithActionContent(LocaleManager.Instance[content]);
+        public SetupWizardPageBuilder WithActionContent(LocaleKeys content) =>
+            WithActionContent(LocaleManager.Instance[content]);
 
         public SetupWizardPageBuilder WithActionContent(object? content)
         {

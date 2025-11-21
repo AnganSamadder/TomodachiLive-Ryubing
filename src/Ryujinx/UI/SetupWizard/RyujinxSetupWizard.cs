@@ -4,7 +4,6 @@ using Ryujinx.Ava.Common.Locale;
 using Ryujinx.Ava.Systems.Configuration;
 using Ryujinx.Ava.Systems.SetupWizard;
 using Ryujinx.Ava.UI.ViewModels;
-using Ryujinx.Ava.UI.SetupWizard;
 using Ryujinx.Ava.UI.SetupWizard.Pages;
 using System;
 using System.IO;

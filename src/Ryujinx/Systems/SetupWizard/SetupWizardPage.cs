@@ -3,7 +3,6 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Ryujinx.Ava.Common.Locale;
 using Ryujinx.Ava.UI.ViewModels;
-using Ryujinx.Ava.Systems.SetupWizard;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -13,20 +12,19 @@ namespace Ryujinx.Ava.Systems.SetupWizard
     {
         protected bool? _result;
         protected readonly CancellationTokenSource _cancellationTokenSource = new();
-    
+
         public bool IsFirstPage { get; } = isFirstPage;
 
         [ObservableProperty]
-        private string? _title;
+        public partial string? Title { get; set; }
 
         [ObservableProperty]
-        private object? _content;
+        public partial object? Content { get; set; }
+
+        [ObservableProperty] public partial object? HelpContent { get; set; } = "test";
 
         [ObservableProperty]
-        private object? _helpContent;
-
-        [ObservableProperty] 
-        private object? _actionContent = LocaleManager.Instance[LocaleKeys.SetupWizardActionNext];
+        public partial object? ActionContent { get; set; } = LocaleManager.Instance[LocaleKeys.SetupWizardActionNext];
 
         [RelayCommand]
         private void MoveBack()
@@ -44,15 +42,14 @@ namespace Ryujinx.Ava.Systems.SetupWizard
 
         public async ValueTask<bool> Show(ContentPresenter presenter)
         {
-            presenter.Content = new SetupWizardPageView 
-            {
-                DataContext = this,
-            };
+            presenter.Content = new SetupWizardPageView { DataContext = this, };
 
-            try {
+            try
+            {
                 await Task.Delay(-1, _cancellationTokenSource.Token);
             }
-            catch (TaskCanceledException) {
+            catch (TaskCanceledException)
+            {
                 return _result ?? false;
             }
 
