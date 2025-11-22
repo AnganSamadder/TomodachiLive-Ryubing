@@ -4,10 +4,10 @@ using Ryujinx.Ava.Common.Locale;
 using Ryujinx.Ava.UI.Helpers;
 using Ryujinx.Common.Configuration;
 using Ryujinx.Common.Logging;
+using Ryujinx.HLE.Exceptions;
 using Ryujinx.HLE.FileSystem;
 using System;
 using System.IO;
-using System.Threading;
 
 namespace Ryujinx.Ava.UI.SetupWizard
 {
@@ -26,34 +26,16 @@ namespace Ryujinx.Ava.UI.SetupWizard
 
                 Logger.Info?.Print(LogClass.Application, $"Installing keys from {directory}");
 
-                Thread thread = new(() =>
-                {
-                    try
-                    {
-                        ContentManager.InstallKeys(directory, systemDirectory);
+                ContentManager.InstallKeys(directory, systemDirectory);
 
-                        NotificationHelper.ShowInformation(
-                            title: LocaleManager.Instance[LocaleKeys.RyujinxInfo],
-                            text: LocaleManager.Instance[LocaleKeys.DialogKeysInstallerKeysInstallSuccessMessage]);
-                    }
-                    catch (Exception ex)
-                    {
-                        string message = ex.Message;
-                        if (ex is FormatException)
-                        {
-                            message = LocaleManager.Instance.UpdateAndGetDynamicValue(
-                                LocaleKeys.DialogKeysInstallerKeysNotFoundErrorMessage, directory);
-                        }
-
-                        NotificationHelper.ShowError(message, waitingExit: true);
-                    }
-                    finally
-                    {
-                        mwvm.VirtualFileSystem.ReloadKeySet();
-                    }
-                }) { Name = "GUI.KeysInstallerThread" };
-
-                thread.Start();
+                NotificationHelper.ShowInformation(
+                    title: LocaleManager.Instance[LocaleKeys.RyujinxInfo],
+                    text: LocaleManager.Instance[LocaleKeys.DialogKeysInstallerKeysInstallSuccessMessage]);
+            }
+            catch (InvalidFirmwarePackageException ifwpe)
+            {
+                NotificationHelper.ShowError(ifwpe.Message, waitingExit: true);
+                return Result.Failure(NoKeysFoundInFolder.Shared);
             }
             catch (MissingKeyException ex)
             {
@@ -62,7 +44,20 @@ namespace Ryujinx.Ava.UI.SetupWizard
             }
             catch (Exception ex)
             {
+                string message = ex.Message;
+                if (ex is FormatException)
+                {
+                    message = LocaleManager.Instance.UpdateAndGetDynamicValue(
+                        LocaleKeys.DialogKeysInstallerKeysNotFoundErrorMessage, directory);
+                }
+
+                NotificationHelper.ShowError(message, waitingExit: true);
+
                 return Result.Failure(new MessageError(ex.Message));
+            }
+            finally
+            {
+                mwvm.VirtualFileSystem.ReloadKeySet();
             }
 
             return Result.Success;

@@ -75,6 +75,12 @@ namespace Ryujinx.Ava.UI.SetupWizard
         {
             if (!HasFirmware)
             {
+                if (!mwvm.VirtualFileSystem.HasKeySet)
+                {
+                    NotificationHelper.ShowError("Keys still seem to not be installed. Are you sure they're in that folder?");
+                    return false;
+                }
+
                 Retry:
                 SetupFirmwarePageViewModel fwvm = new();
                 bool result = await NextPage()

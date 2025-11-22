@@ -487,7 +487,7 @@ namespace Ryujinx.HLE.FileSystem
 
                 if (keyPaths.Length is 0)
                     throw new FileNotFoundException($"Directory '{keysSource}' contained no '.keys' files.");
-
+                
                 foreach (string filePath in keyPaths)
                 {
                     try
