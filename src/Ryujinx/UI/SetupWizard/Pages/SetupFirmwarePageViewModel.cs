@@ -10,13 +10,13 @@ using Ryujinx.Ava.Utilities;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace Ryujinx.UI.SetupWizard.Pages
+namespace Ryujinx.Ava.UI.SetupWizard.Pages
 {
     public partial class SetupFirmwarePageViewModel : BaseModel
     {
         [ObservableProperty]
         public partial string FirmwareSourcePath { get; set; }
-        
+
         [RelayCommand]
         private static async Task BrowseFile(TextBox tb)
         {

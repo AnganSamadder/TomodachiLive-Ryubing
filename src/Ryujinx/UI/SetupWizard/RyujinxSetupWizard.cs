@@ -8,7 +8,6 @@ using Ryujinx.Ava.UI.ViewModels;
 using Ryujinx.Ava.UI.SetupWizard.Pages;
 using Ryujinx.Common.Configuration;
 using Ryujinx.HLE.FileSystem;
-using Ryujinx.UI.SetupWizard.Pages;
 using System;
 using System.IO;
 using System.Threading.Tasks;
