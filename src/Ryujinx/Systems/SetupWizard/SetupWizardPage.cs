@@ -8,10 +8,10 @@ using System.Threading.Tasks;
 
 namespace Ryujinx.Ava.Systems.SetupWizard
 {
-    public partial class SetupWizardPage(bool isFirstPage = false) : BaseModel
+    public partial class SetupWizardPage(ContentPresenter contentPresenter, bool isFirstPage = false) : BaseModel
     {
-        protected bool? _result;
-        protected readonly CancellationTokenSource _cancellationTokenSource = new();
+        private bool? _result;
+        private readonly CancellationTokenSource _cts = new();
 
         public bool IsFirstPage { get; } = isFirstPage;
 
@@ -30,23 +30,23 @@ namespace Ryujinx.Ava.Systems.SetupWizard
         private void MoveBack()
         {
             _result = false;
-            _cancellationTokenSource.Cancel();
+            _cts.Cancel();
         }
 
         [RelayCommand]
         private void MoveNext()
         {
             _result = true;
-            _cancellationTokenSource.Cancel();
+            _cts.Cancel();
         }
 
-        public async ValueTask<bool> Show(ContentPresenter presenter)
+        public async ValueTask<bool> Show()
         {
-            presenter.Content = new SetupWizardPageView { DataContext = this, };
+            contentPresenter.Content = new SetupWizardPageView { ViewModel = this };
 
             try
             {
-                await Task.Delay(-1, _cancellationTokenSource.Token);
+                await Task.Delay(-1, _cts.Token);
             }
             catch (TaskCanceledException)
             {

@@ -27,7 +27,7 @@
                         </DataTemplate>
                     </ContentPresenter.DataTemplates>
                 </ContentPresenter>
-                
+
                 <Grid Grid.Row="2" 
                       ColumnDefinitions="Auto,*" 
                       IsVisible="{Binding #InfoToggle.IsChecked}">
@@ -53,7 +53,7 @@
                           Padding="6">
                 <fa:Icon Value="fa-solid fa-circle-info" />
             </ToggleButton>
-            
+
             <Button IsVisible="{Binding !IsFirstPage}"
                     Grid.Column="1"
                     Content="{ext:Locale SetupWizardActionBack}"

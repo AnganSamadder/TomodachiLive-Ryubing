@@ -1,3 +1,4 @@
+using Avalonia.Controls.Presenters;
 using Gommon;
 using Ryujinx.Ava.Common.Locale;
 using Ryujinx.Ava.Systems.Configuration;
@@ -27,7 +28,13 @@ namespace Ryujinx.Ava.UI.SetupWizard
             NotificationHelper.SetNotificationManager(wizardWindow);
             RyujinxSetupWizardWindow.IsOpen = true;
             Start:
-            await FirstPage();
+            await FirstPage()
+                .WithTitle(LocaleKeys.SetupWizardFirstPageTitle)
+                .WithContent(LocaleKeys.SetupWizardFirstPageContent)
+                .WithActionContent(LocaleKeys.SetupWizardFirstPageAction)
+                .Show(); 
+            // result is unhandled as the first page cannot display anything other than the next button.
+            // back does not need to be handled
 
             Keys:
             if (!await SetupKeys())

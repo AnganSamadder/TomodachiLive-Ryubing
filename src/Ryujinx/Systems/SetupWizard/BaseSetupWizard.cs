@@ -11,18 +11,10 @@ namespace Ryujinx.Ava.Systems.SetupWizard
         /// </summary>
         public abstract Task Start();
 
-        protected ValueTask<bool> FirstPage()
-        {
-            SetupWizardPageBuilder builder = new(presenter, isFirstPage: true);
+        protected SetupWizardPage FirstPage() 
+            => new(presenter, isFirstPage: true);
 
-            return builder
-                .WithTitle(LocaleKeys.SetupWizardFirstPageTitle)
-                .WithContent(LocaleKeys.SetupWizardFirstPageContent)
-                .WithActionContent(LocaleKeys.SetupWizardFirstPageAction)
-                .Show();
-        }
-
-        protected SetupWizardPageBuilder NextPage()
+        protected SetupWizardPage NextPage()
             => new(presenter);
     }
 }
