@@ -146,11 +146,7 @@ namespace Ryujinx.Ava.UI.Windows
 
                     if (Program.IsFirstStart && RyujinxSetupWizardWindow.CanShowSetupWizard)
                     {
-                        Task windowTask = ShowAsync(
-                            RyujinxSetupWizardWindow.CreateWindow(ViewModel, out BaseSetupWizard wiz), 
-                            this);
-                        _ = wiz.Start();
-                        await windowTask;
+                        await RyujinxSetupWizardWindow.ShowAsync(this);
                     }
                 });
 

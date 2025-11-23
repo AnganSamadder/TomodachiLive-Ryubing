@@ -1,19 +1,19 @@
+using Avalonia.Controls;
 using Ryujinx.Ava.Systems.Configuration;
 using Ryujinx.Ava.Systems.SetupWizard;
-using Ryujinx.Ava.UI.Helpers;
-using Ryujinx.Ava.UI.ViewModels;
 using Ryujinx.Ava.UI.Windows;
 using Ryujinx.Common.Configuration;
 using Ryujinx.Common.Logging;
 using System;
 using System.IO;
+using System.Threading.Tasks;
 
 namespace Ryujinx.Ava.UI.SetupWizard
 {
     public partial class RyujinxSetupWizardWindow : StyleableAppWindow
     {
         public static bool IsUsingSetupWizard { get; set; }
-        
+
         public RyujinxSetupWizardWindow() : base(useCustomTitleBar: true)
         {
             InitializeComponent();
@@ -24,18 +24,22 @@ namespace Ryujinx.Ava.UI.SetupWizard
             }
         }
 
-        public static RyujinxSetupWizardWindow CreateWindow(MainWindowViewModel mwvm, out BaseSetupWizard setupWizard)
+        public static Task ShowAsync(Window owner = null)
+        {
+            Task windowTask = ShowAsync(
+                CreateWindow(out BaseSetupWizard wiz),
+                owner ?? RyujinxApp.MainWindow
+            );
+            _ = wiz.Start();
+            return windowTask;
+        }
+
+        public static RyujinxSetupWizardWindow CreateWindow(out BaseSetupWizard setupWizard)
         {
             RyujinxSetupWizardWindow window = new();
-            window.DataContext = setupWizard = new RyujinxSetupWizard(window.WizardPresenter, mwvm, () =>
-            {
-                NotificationHelper.SetNotificationManager(RyujinxApp.MainWindow);
-                window.Close();
-                IsUsingSetupWizard = false;
-            });
+            window.DataContext = setupWizard = new RyujinxSetupWizard(window);
             window.Height = 600;
             window.Width = 750;
-            NotificationHelper.SetNotificationManager(window);
             return window;
         }
 
@@ -82,4 +86,3 @@ namespace Ryujinx.Ava.UI.SetupWizard
         }
     }
 }
-

@@ -57,7 +57,7 @@ namespace Ryujinx.Ava.UI.SetupWizard
             }
             finally
             {
-                mwvm.VirtualFileSystem.ReloadKeySet();
+                _mainWindow.VirtualFileSystem.ReloadKeySet();
             }
 
             return Result.Success;

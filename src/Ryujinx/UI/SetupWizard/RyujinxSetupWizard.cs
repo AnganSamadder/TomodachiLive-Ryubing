@@ -1,11 +1,10 @@
-using Avalonia.Controls.Presenters;
 using Gommon;
 using Ryujinx.Ava.Common.Locale;
 using Ryujinx.Ava.Systems.Configuration;
 using Ryujinx.Ava.Systems.SetupWizard;
 using Ryujinx.Ava.UI.Helpers;
-using Ryujinx.Ava.UI.ViewModels;
 using Ryujinx.Ava.UI.SetupWizard.Pages;
+using Ryujinx.Ava.UI.Windows;
 using Ryujinx.Common.Configuration;
 using Ryujinx.HLE.FileSystem;
 using System;
@@ -14,15 +13,18 @@ using System.Threading.Tasks;
 
 namespace Ryujinx.Ava.UI.SetupWizard
 {
-    public partial class RyujinxSetupWizard(ContentPresenter presenter, MainWindowViewModel mwvm, Action onClose)
-        : BaseSetupWizard(presenter)
+    public partial class RyujinxSetupWizard(RyujinxSetupWizardWindow wizardWindow) 
+        : BaseSetupWizard(wizardWindow.WizardPresenter)
     {
+        private readonly MainWindow _mainWindow = RyujinxApp.MainWindow;
+
         private bool _configWasModified = false;
 
-        public bool HasFirmware => mwvm.ContentManager.GetCurrentFirmwareVersion() != null;
+        public bool HasFirmware => _mainWindow.ContentManager.GetCurrentFirmwareVersion() != null;
 
         public override async Task Start()
         {
+            NotificationHelper.SetNotificationManager(wizardWindow);
             RyujinxSetupWizardWindow.IsUsingSetupWizard = true;
             Start:
             await FirstPage();
@@ -35,9 +37,10 @@ namespace Ryujinx.Ava.UI.SetupWizard
             if (!await SetupFirmware())
                 goto Keys;
 
-
             Return:
-            onClose();
+            NotificationHelper.SetNotificationManager(_mainWindow);
+            wizardWindow.Close();
+            RyujinxSetupWizardWindow.IsUsingSetupWizard = false;
 
             if (_configWasModified)
                 ConfigurationState.Instance.ToFileFormat().SaveConfig(Program.GlobalConfigurationPath);
@@ -45,7 +48,7 @@ namespace Ryujinx.Ava.UI.SetupWizard
 
         private async ValueTask<bool> SetupKeys()
         {
-            if (!mwvm.VirtualFileSystem.HasKeySet)
+            if (!_mainWindow.VirtualFileSystem.HasKeySet)
             {
                 Retry:
                 bool result = await NextPage()
@@ -73,7 +76,7 @@ namespace Ryujinx.Ava.UI.SetupWizard
         {
             if (!HasFirmware)
             {
-                if (!mwvm.VirtualFileSystem.HasKeySet)
+                if (!_mainWindow.VirtualFileSystem.HasKeySet)
                 {
                     NotificationHelper.ShowError("Keys still seem to not be installed. Please try again.");
                     return false;
@@ -93,8 +96,8 @@ namespace Ryujinx.Ava.UI.SetupWizard
 
                 try
                 {
-                    mwvm.ContentManager.InstallFirmware(fwvm.FirmwareSourcePath);
-                    SystemVersion installedFwVer = mwvm.ContentManager.GetCurrentFirmwareVersion();
+                    _mainWindow.ContentManager.InstallFirmware(fwvm.FirmwareSourcePath);
+                    SystemVersion installedFwVer = _mainWindow.ContentManager.GetCurrentFirmwareVersion();
                     if (installedFwVer != null)
                     {
                         NotificationHelper.ShowInformation(
@@ -110,7 +113,7 @@ namespace Ryujinx.Ava.UI.SetupWizard
                             "\nPlease check the log or try again."
                         );
                     }
-                    mwvm.RefreshFirmwareStatus(installedFwVer, allowNullVersion: true);
+                    _mainWindow.ViewModel.RefreshFirmwareStatus(installedFwVer, allowNullVersion: true);
 
                     // Purge Applet Cache.
 
