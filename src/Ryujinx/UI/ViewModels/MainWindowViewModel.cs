@@ -1758,11 +1758,19 @@ namespace Ryujinx.Ava.UI.ViewModels
         public static void UpdateGameMetadata(string titleId, TimeSpan playTime)
             => ApplicationLibrary.LoadAndSaveMetaData(titleId, appMetadata => appMetadata.UpdatePostGame(playTime));
 
-        public void RefreshFirmwareStatus(SystemVersion version = null)
+        /// <remarks>
+        ///     By default, this method will try to retrieve the installed FW version if the version parameter is null.
+        ///     <paramref name="allowNullVersion"/> forces this method to accept null and not re-lookup
+        ///     in the case you want to deliberately cause an update with a missing firmware version;
+        ///
+        ///     i.e., in the setup wizard.
+        /// </remarks>
+        public void RefreshFirmwareStatus(SystemVersion version = null, bool allowNullVersion = false)
         {
             try
             {
-                version ??= ContentManager.GetCurrentFirmwareVersion();
+                if (!allowNullVersion)
+                    version ??= ContentManager.GetCurrentFirmwareVersion();
             }
             catch (Exception)
             {

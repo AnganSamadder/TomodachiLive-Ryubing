@@ -49,10 +49,9 @@ namespace Ryujinx.Ava.UI.SetupWizard
             if (!mwvm.VirtualFileSystem.HasKeySet)
             {
                 Retry:
-                SetupKeysPageViewModel kpvm = new();
                 bool result = await NextPage()
                     .WithTitle(LocaleKeys.SetupWizardKeysPageTitle)
-                    .WithContent<SetupKeysPage>(kpvm)
+                    .WithContent<SetupKeysPage, SetupKeysPageViewModel>(out SetupKeysPageViewModel kpvm)
                     .Show();
 
                 if (!result)
@@ -77,15 +76,14 @@ namespace Ryujinx.Ava.UI.SetupWizard
             {
                 if (!mwvm.VirtualFileSystem.HasKeySet)
                 {
-                    NotificationHelper.ShowError("Keys still seem to not be installed. Are you sure they're in that folder?");
+                    NotificationHelper.ShowError("Keys still seem to not be installed. Please try again.");
                     return false;
                 }
 
                 Retry:
-                SetupFirmwarePageViewModel fwvm = new();
                 bool result = await NextPage()
                     .WithTitle(LocaleKeys.SetupWizardFirmwarePageTitle)
-                    .WithContent<SetupFirmwarePage>(fwvm)
+                    .WithContent<SetupFirmwarePage, SetupFirmwarePageViewModel>(out SetupFirmwarePageViewModel fwvm)
                     .Show();
 
                 if (!result)
@@ -98,11 +96,22 @@ namespace Ryujinx.Ava.UI.SetupWizard
                 {
                     mwvm.ContentManager.InstallFirmware(fwvm.FirmwareSourcePath);
                     SystemVersion installedFwVer = mwvm.ContentManager.GetCurrentFirmwareVersion();
-                    NotificationHelper.ShowInformation(
-                        "Firmware installed",
-                        $"Installed firmware version {installedFwVer.VersionString}."
-                    );
-                    mwvm.RefreshFirmwareStatus(installedFwVer);
+                    if (installedFwVer != null)
+                    {
+                        NotificationHelper.ShowInformation(
+                            "Firmware installed",
+                            $"Installed firmware version {installedFwVer.VersionString}."
+                        );
+                    }
+                    else
+                    {
+                        NotificationHelper.ShowError(
+                            "Firmware not installed",
+                            $"It seems some error occurred when trying to install the firmware at path '{fwvm.FirmwareSourcePath}'. " +
+                            "\nPlease check the log or try again."
+                        );
+                    }
+                    mwvm.RefreshFirmwareStatus(installedFwVer, allowNullVersion: true);
 
                     // Purge Applet Cache.
 

@@ -2,6 +2,8 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Presenters;
 using Ryujinx.Ava.Common.Locale;
+using Ryujinx.Ava.UI.Controls;
+using Ryujinx.Ava.UI.ViewModels;
 using System.Threading.Tasks;
 
 namespace Ryujinx.Ava.Systems.SetupWizard
@@ -50,6 +52,15 @@ namespace Ryujinx.Ava.Systems.SetupWizard
             _page.Content = new TControl { DataContext = context };
 
             return this;
+        }
+
+        public SetupWizardPageBuilder WithContent<TControl, TViewModel>(out TViewModel boundViewModel) 
+            where TControl : RyujinxControl<TViewModel>, new()
+            where TViewModel : BaseModel, new()
+        {
+            boundViewModel = new();
+
+            return WithContent<TControl>(boundViewModel);
         }
 
         public SetupWizardPageBuilder WithActionContent(LocaleKeys content) =>
