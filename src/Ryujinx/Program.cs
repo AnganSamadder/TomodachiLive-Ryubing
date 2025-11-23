@@ -264,6 +264,8 @@ namespace Ryujinx.Ava
 
                     ConfigurationFileFormat.RenameInvalidConfigFile(ConfigurationPath);
 
+                    IsFirstStart = true;
+
                     ConfigurationState.Instance.LoadDefault();
                 }
             }
