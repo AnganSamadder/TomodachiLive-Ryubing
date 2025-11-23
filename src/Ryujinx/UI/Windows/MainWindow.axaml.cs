@@ -144,10 +144,8 @@ namespace Ryujinx.Ava.UI.Windows
                 {
                     await ShowIntelMacWarningAsync();
 
-                    if (Program.IsFirstStart && RyujinxSetupWizardWindow.CanShowSetupWizard)
-                    {
+                    if (Program.IsFirstStart)
                         await RyujinxSetupWizardWindow.ShowAsync(this);
-                    }
                 });
 
                 if (CommandLineState.FirmwareToInstallPathArg.TryGet(out FilePath fwPath))
@@ -412,7 +410,7 @@ namespace Ryujinx.Ava.UI.Windows
                     }
                 }
             }
-            else if (!RyujinxSetupWizardWindow.IsUsingSetupWizard)
+            else if (!RyujinxSetupWizardWindow.IsOpen)
             {
                 ShowKeyErrorOnLoad = false;
 

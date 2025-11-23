@@ -12,7 +12,7 @@ namespace Ryujinx.Ava.UI.SetupWizard
 {
     public partial class RyujinxSetupWizardWindow : StyleableAppWindow
     {
-        public static bool IsUsingSetupWizard { get; set; }
+        public static bool IsOpen { get; set; }
 
         public RyujinxSetupWizardWindow() : base(useCustomTitleBar: true)
         {
@@ -26,6 +26,9 @@ namespace Ryujinx.Ava.UI.SetupWizard
 
         public static Task ShowAsync(Window owner = null)
         {
+            if (!CanShowSetupWizard)
+                return Task.CompletedTask;
+            
             Task windowTask = ShowAsync(
                 CreateWindow(out BaseSetupWizard wiz),
                 owner ?? RyujinxApp.MainWindow
@@ -49,7 +52,7 @@ namespace Ryujinx.Ava.UI.SetupWizard
         public static bool DisableSetupWizard()
         {
             if (!CanShowSetupWizard)
-                return false; //cannot disable; file already doesn't exist, so it's disabled.
+                return false; //cannot disable; file exists, so it's already disabled.
 
             string disableFile = Path.Combine(AppDataManager.BaseDirPath, ".DoNotShowSetupWizard");
 
@@ -69,7 +72,7 @@ namespace Ryujinx.Ava.UI.SetupWizard
         public static bool EnableSetupWizard()
         {
             if (CanShowSetupWizard)
-                return false; //cannot enable; file already exists, so it's enabled.
+                return false; //cannot enable; file does not exist, so it's already enabled.
 
             string disableFile = Path.Combine(AppDataManager.BaseDirPath, ".DoNotShowSetupWizard");
 

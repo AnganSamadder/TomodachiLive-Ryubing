@@ -25,7 +25,7 @@ namespace Ryujinx.Ava.UI.SetupWizard
         public override async Task Start()
         {
             NotificationHelper.SetNotificationManager(wizardWindow);
-            RyujinxSetupWizardWindow.IsUsingSetupWizard = true;
+            RyujinxSetupWizardWindow.IsOpen = true;
             Start:
             await FirstPage();
 
@@ -40,7 +40,7 @@ namespace Ryujinx.Ava.UI.SetupWizard
             Return:
             NotificationHelper.SetNotificationManager(_mainWindow);
             wizardWindow.Close();
-            RyujinxSetupWizardWindow.IsUsingSetupWizard = false;
+            RyujinxSetupWizardWindow.IsOpen = false;
 
             if (_configWasModified)
                 ConfigurationState.Instance.ToFileFormat().SaveConfig(Program.GlobalConfigurationPath);

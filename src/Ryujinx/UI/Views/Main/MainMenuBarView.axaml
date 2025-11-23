@@ -8,6 +8,7 @@
     xmlns:viewModels="clr-namespace:Ryujinx.Ava.UI.ViewModels"
     xmlns:controls="clr-namespace:Ryujinx.Ava.UI.Controls"
     xmlns:common="clr-namespace:Ryujinx.Common;assembly=Ryujinx.Common"
+    xmlns:setupWizard="clr-namespace:Ryujinx.Ava.UI.SetupWizard"
     x:DataType="viewModels:MainWindowViewModel"
     x:Class="Ryujinx.Ava.UI.Views.Main.MainMenuBarView">
     <Design.DataContext>
@@ -244,6 +245,11 @@
                     Header="{ext:Locale LdnGameListOpen}"
                     Icon="{ext:Icon fa-solid fa-people-group}"
                     IsEnabled="{Binding IsRyuLdnEnabled}"/>
+                <MenuItem
+                    Name="SetupWizardMenuItem"
+                    Header="{ext:Locale SetupWizardOpen}"
+                    Icon="{ext:Icon fa-solid fa-wand-sparkles}"
+                    IsEnabled="{x:Static setupWizard:RyujinxSetupWizardWindow.CanShowSetupWizard}"/>
                 <Separator />
                 <MenuItem VerticalAlignment="Center" Header="{ext:Locale MenuBarHelpFaqAndGuides}" Icon="{ext:Icon fa-solid fa-question}" >
                     <MenuItem

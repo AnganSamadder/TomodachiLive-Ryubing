@@ -10,6 +10,7 @@ using Ryujinx.Ava.Systems.AppLibrary;
 using Ryujinx.Ava.Systems.Configuration;
 using Ryujinx.Ava.UI.Controls;
 using Ryujinx.Ava.UI.Helpers;
+using Ryujinx.Ava.UI.SetupWizard;
 using Ryujinx.Ava.UI.ViewModels;
 using Ryujinx.Ava.UI.Views.Dialog;
 using Ryujinx.Ava.UI.Windows;
@@ -50,6 +51,7 @@ namespace Ryujinx.Ava.UI.Views.Main
             AboutWindowMenuItem.Command = Commands.Create(AboutView.Show);
             CompatibilityListMenuItem.Command = Commands.Create(() => CompatibilityListWindow.Show());
             LdnGameListMenuItem.Command = Commands.Create(() => LdnGamesListWindow.Show());
+            SetupWizardMenuItem.Command = Commands.Create(() => RyujinxSetupWizardWindow.ShowAsync());
 
             UpdateMenuItem.Command = MainWindowViewModel.UpdateCommand;
 
