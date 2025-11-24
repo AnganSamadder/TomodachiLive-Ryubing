@@ -1,6 +1,5 @@
 using Ryujinx.Ava.Common.Locale;
 using Ryujinx.Ava.Systems.Configuration;
-using Ryujinx.Ava.Systems.SetupWizard;
 using Ryujinx.Ava.UI.Helpers;
 using Ryujinx.Ava.UI.SetupWizard.Pages;
 using Ryujinx.Ava.UI.Windows;
@@ -9,17 +8,18 @@ using System.Threading.Tasks;
 namespace Ryujinx.Ava.UI.SetupWizard
 {
     public class RyujinxSetupWizard(RyujinxSetupWizardWindow wizardWindow)
-        : BaseSetupWizard(wizardWindow.WizardPresenter)
     {
         private readonly MainWindow _mainWindow = RyujinxApp.MainWindow;
 
         private bool _configWasModified;
 
         public bool HasFirmware => _mainWindow.ContentManager.GetCurrentFirmwareVersion() != null;
+        
+        public NotificationHelper NotificationHelper { get; private set; }
 
-        public override async Task Start()
+        public async Task Start()
         {
-            NotificationHelper.SetNotificationManager(wizardWindow);
+            NotificationHelper = new NotificationHelper(wizardWindow);
             RyujinxSetupWizardWindow.IsOpen = true;
             Start:
             await FirstPage()
@@ -39,7 +39,7 @@ namespace Ryujinx.Ava.UI.SetupWizard
                 goto Keys;
 
             Return:
-            NotificationHelper.SetNotificationManager(_mainWindow);
+            NotificationHelper = null;
             wizardWindow.Close();
             RyujinxSetupWizardWindow.IsOpen = false;
 
@@ -92,6 +92,10 @@ namespace Ryujinx.Ava.UI.SetupWizard
 
             return true;
         }
+
+        private SetupWizardPage FirstPage() => new(wizardWindow.WizardPresenter, this, isFirstPage: true);
+
+        private SetupWizardPage NextPage() => new(wizardWindow.WizardPresenter, this);
 
         public void SignalConfigModified()
         {

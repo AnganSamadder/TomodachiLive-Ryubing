@@ -1,7 +1,5 @@
 using Avalonia.Controls;
-using Gommon;
 using Ryujinx.Ava.Systems.Configuration;
-using Ryujinx.Ava.Systems.SetupWizard;
 using Ryujinx.Ava.UI.Windows;
 using Ryujinx.Common.Configuration;
 using Ryujinx.Common.Logging;
@@ -31,14 +29,14 @@ namespace Ryujinx.Ava.UI.SetupWizard
                 return Task.CompletedTask;
 
             Task windowTask = ShowAsync(
-                CreateWindow(out BaseSetupWizard wiz),
+                CreateWindow(out RyujinxSetupWizard wiz),
                 owner
             );
             _ = wiz.Start();
             return windowTask;
         }
 
-        public static RyujinxSetupWizardWindow CreateWindow(out BaseSetupWizard setupWizard)
+        public static RyujinxSetupWizardWindow CreateWindow(out RyujinxSetupWizard setupWizard)
         {
             RyujinxSetupWizardWindow window = new();
             window.DataContext = setupWizard = new RyujinxSetupWizard(window);

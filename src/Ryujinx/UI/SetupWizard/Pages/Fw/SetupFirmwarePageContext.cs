@@ -4,8 +4,6 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Gommon;
 using Ryujinx.Ava.Common.Locale;
-using Ryujinx.Ava.Systems.SetupWizard;
-using Ryujinx.Ava.UI.Helpers;
 using Ryujinx.Ava.Utilities;
 using Ryujinx.Common.Configuration;
 using Ryujinx.HLE.FileSystem;
@@ -81,23 +79,20 @@ namespace Ryujinx.Ava.UI.SetupWizard.Pages
                 SystemVersion installedFwVer = RyujinxApp.MainWindow.ContentManager.GetCurrentFirmwareVersion();
                 if (installedFwVer != null)
                 {
-                    NotificationHelper.ShowInformation(
+                    Notifications.NotifyInformation(
                         "Firmware installed",
                         $"Installed firmware version {installedFwVer.VersionString}."
                     );
                 }
                 else
                 {
-                    NotificationHelper.ShowError(
+                    Notifications.NotifyError(
                         "Firmware not installed",
                         $"It seems some error occurred when trying to install the firmware at path '{FirmwareSourcePath}'." +
                         "\nDid that folder contain a firmware dump?"
                     );
                 }
                 RyujinxApp.MainWindow.ViewModel.RefreshFirmwareStatus(installedFwVer, allowNullVersion: true);
-
-                if (installedFwVer is null)
-                    return Result.Fail;
 
                 // Purge Applet Cache.
 
@@ -112,7 +107,7 @@ namespace Ryujinx.Ava.UI.SetupWizard.Pages
             }
             catch (Exception e)
             {
-                NotificationHelper.ShowError(e.Message, waitingExit: true);
+                Notifications.NotifyError(e.Message, waitingExit: true);
                 return Result.Fail;
             }
 

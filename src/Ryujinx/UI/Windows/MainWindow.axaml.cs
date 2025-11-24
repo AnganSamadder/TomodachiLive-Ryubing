@@ -15,7 +15,6 @@ using Ryujinx.Ava.Systems;
 using Ryujinx.Ava.Systems.AppLibrary;
 using Ryujinx.Ava.Systems.Configuration;
 using Ryujinx.Ava.Systems.Configuration.UI;
-using Ryujinx.Ava.Systems.SetupWizard;
 using Ryujinx.Ava.UI.Applet;
 using Ryujinx.Ava.UI.Helpers;
 using Ryujinx.Ava.UI.Models;
@@ -136,7 +135,7 @@ namespace Ryujinx.Ava.UI.Windows
         {
             base.OnApplyTemplate(e);
 
-            NotificationHelper.SetNotificationManager(this);
+            NotificationHelper.Shared = new NotificationHelper(this);
 
             Executor.ExecuteBackgroundAsync(async () =>
             {

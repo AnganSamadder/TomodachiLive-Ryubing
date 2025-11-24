@@ -2,10 +2,8 @@ using Avalonia;
 using Avalonia.Controls;
 using Ryujinx.Ava.Common.Locale;
 using Ryujinx.Ava.UI.Controls;
-using Ryujinx.Ava.UI.SetupWizard;
-using Ryujinx.Ava.UI.ViewModels;
 
-namespace Ryujinx.Ava.Systems.SetupWizard
+namespace Ryujinx.Ava.UI.SetupWizard
 {
     public partial class SetupWizardPage
     {
@@ -46,11 +44,11 @@ namespace Ryujinx.Ava.Systems.SetupWizard
             return this;
         }
 
-        public SetupWizardPage WithContent<TControl, TViewModel>(out TViewModel boundViewModel) 
+        public SetupWizardPage WithContent<TControl, TViewModel>(out TViewModel boundViewModel)
             where TControl : RyujinxControl<TViewModel>, new()
-            where TViewModel : BaseModel, new()
+            where TViewModel : SetupWizardPageContext, new()
         {
-            boundViewModel = new();
+            boundViewModel = new() { Notifications = ownerWizard.NotificationHelper };
 
             return WithContent<TControl>(boundViewModel);
         }

@@ -5,8 +5,6 @@ using CommunityToolkit.Mvvm.Input;
 using DynamicData;
 using Gommon;
 using Ryujinx.Ava.Common.Locale;
-using Ryujinx.Ava.Systems.SetupWizard;
-using Ryujinx.Ava.UI.Helpers;
 using Ryujinx.Ava.Utilities;
 using Ryujinx.Common.Configuration;
 using Ryujinx.Common.Logging;
@@ -42,7 +40,7 @@ namespace Ryujinx.Ava.UI.SetupWizard.Pages
             }
         }
 
-        private static Result InstallKeys(string directory)
+        private Result InstallKeys(string directory)
         {
             try
             {
@@ -57,18 +55,18 @@ namespace Ryujinx.Ava.UI.SetupWizard.Pages
 
                 ContentManager.InstallKeys(directory, systemDirectory);
 
-                NotificationHelper.ShowInformation(
+                Notifications.NotifyInformation(
                     title: LocaleManager.Instance[LocaleKeys.RyujinxInfo],
                     text: LocaleManager.Instance[LocaleKeys.DialogKeysInstallerKeysInstallSuccessMessage]);
             }
             catch (InvalidFirmwarePackageException ifwpe)
             {
-                NotificationHelper.ShowError(ifwpe.Message, waitingExit: true);
+                Notifications.NotifyError(ifwpe.Message, waitingExit: true);
                 return Result.Failure(NoKeysFoundInFolder.Shared);
             }
             catch (MissingKeyException ex)
             {
-                NotificationHelper.ShowError(ex.ToString(), waitingExit: true);
+                Notifications.NotifyError(ex.ToString(), waitingExit: true);
                 return Result.Failure(NoKeysFoundInFolder.Shared);
             }
             catch (Exception ex)
@@ -80,7 +78,7 @@ namespace Ryujinx.Ava.UI.SetupWizard.Pages
                         LocaleKeys.DialogKeysInstallerKeysNotFoundErrorMessage, directory);
                 }
 
-                NotificationHelper.ShowError(message, waitingExit: true);
+                Notifications.NotifyError(message, waitingExit: true);
 
                 return Result.Failure(new MessageError(message));
             }

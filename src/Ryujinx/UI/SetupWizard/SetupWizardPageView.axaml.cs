@@ -1,6 +1,6 @@
 using Ryujinx.Ava.UI.Controls;
 
-namespace Ryujinx.Ava.Systems.SetupWizard
+namespace Ryujinx.Ava.UI.SetupWizard
 {
     public partial class SetupWizardPageView : RyujinxControl<SetupWizardPage>
     {

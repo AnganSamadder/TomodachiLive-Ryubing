@@ -2,15 +2,13 @@ using Avalonia.Controls.Presenters;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Ryujinx.Ava.Common.Locale;
-using Ryujinx.Ava.UI.Controls;
-using Ryujinx.Ava.UI.SetupWizard;
 using Ryujinx.Ava.UI.ViewModels;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Ryujinx.Ava.Systems.SetupWizard
+namespace Ryujinx.Ava.UI.SetupWizard
 {
-    public partial class SetupWizardPage(ContentPresenter contentPresenter, bool isFirstPage = false) : BaseModel
+    public partial class SetupWizardPage(ContentPresenter contentPresenter, RyujinxSetupWizard ownerWizard, bool isFirstPage = false) : BaseModel
     {
         private bool? _result;
         private readonly CancellationTokenSource _cts = new();
