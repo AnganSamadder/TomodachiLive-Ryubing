@@ -548,6 +548,9 @@ namespace Ryujinx.HLE.FileSystem
                 new DirectoryInfo(registeredDirectory).Delete(true);
             }
 
+            if (!Directory.Exists(temporaryDirectory))
+                return; // nothing to move
+
             Directory.Move(temporaryDirectory, registeredDirectory);
 
             LoadEntries();
