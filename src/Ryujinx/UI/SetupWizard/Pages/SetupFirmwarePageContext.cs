@@ -3,16 +3,20 @@ using Avalonia.Platform.Storage;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Gommon;
-using Ryujinx.Ava;
 using Ryujinx.Ava.Common.Locale;
-using Ryujinx.Ava.UI.ViewModels;
+using Ryujinx.Ava.Systems.SetupWizard;
+using Ryujinx.Ava.UI.Helpers;
 using Ryujinx.Ava.Utilities;
+using Ryujinx.Common.Configuration;
+using Ryujinx.HLE.FileSystem;
+using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Threading.Tasks;
 
 namespace Ryujinx.Ava.UI.SetupWizard.Pages
 {
-    public partial class SetupFirmwarePageViewModel : BaseModel
+    public partial class SetupFirmwarePageContext : SetupWizardPageContext
     {
         [ObservableProperty]
         public partial string FirmwareSourcePath { get; set; }
@@ -64,6 +68,55 @@ namespace Ryujinx.Ava.UI.SetupWizard.Pages
             {
                 tb.Text = firmwareFolder.TryGetLocalPath();
             }
+        }
+
+        public override Result CompleteStep()
+        {
+            if (!Directory.Exists(FirmwareSourcePath))
+                return Result.Fail;
+
+            try
+            {
+                RyujinxApp.MainWindow.ContentManager.InstallFirmware(FirmwareSourcePath);
+                SystemVersion installedFwVer = RyujinxApp.MainWindow.ContentManager.GetCurrentFirmwareVersion();
+                if (installedFwVer != null)
+                {
+                    NotificationHelper.ShowInformation(
+                        "Firmware installed",
+                        $"Installed firmware version {installedFwVer.VersionString}."
+                    );
+                }
+                else
+                {
+                    NotificationHelper.ShowError(
+                        "Firmware not installed",
+                        $"It seems some error occurred when trying to install the firmware at path '{FirmwareSourcePath}'." +
+                        "\nDid that folder contain a firmware dump?"
+                    );
+                }
+                RyujinxApp.MainWindow.ViewModel.RefreshFirmwareStatus(installedFwVer, allowNullVersion: true);
+
+                if (installedFwVer is null)
+                    return Result.Fail;
+
+                // Purge Applet Cache.
+
+                DirectoryInfo miiEditorCacheFolder = new(
+                    Path.Combine(AppDataManager.GamesDirPath, "0100000000001009", "cache")
+                );
+
+                if (miiEditorCacheFolder.Exists)
+                {
+                    miiEditorCacheFolder.Delete(true);
+                }
+            }
+            catch (Exception e)
+            {
+                NotificationHelper.ShowError(e.Message, waitingExit: true);
+                return Result.Fail;
+            }
+
+            return Result.Success;
         }
     }
 }

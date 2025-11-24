@@ -44,7 +44,7 @@
     <PackageVersion Include="Ryujinx.LibHac" Version="0.21.0-alpha.126" />
     <PackageVersion Include="Ryujinx.UpdateClient" Version="1.0.44" />
     <PackageVersion Include="Ryujinx.Systems.Update.Common" Version="1.0.44" />
-    <PackageVersion Include="Gommon" Version="2.8.0.1" />
+    <PackageVersion Include="Gommon" Version="2.8.0.2" />
     <PackageVersion Include="securifybv.ShellLink" Version="0.1.0" />
     <PackageVersion Include="Sep" Version="0.11.1" />
     <PackageVersion Include="shaderc.net" Version="0.1.0" />

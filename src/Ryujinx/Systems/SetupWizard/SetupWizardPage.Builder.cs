@@ -2,6 +2,7 @@ using Avalonia;
 using Avalonia.Controls;
 using Ryujinx.Ava.Common.Locale;
 using Ryujinx.Ava.UI.Controls;
+using Ryujinx.Ava.UI.SetupWizard;
 using Ryujinx.Ava.UI.ViewModels;
 
 namespace Ryujinx.Ava.Systems.SetupWizard

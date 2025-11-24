@@ -1,19 +1,48 @@
+using Avalonia.Controls;
+using Avalonia.Platform.Storage;
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using DynamicData;
 using Gommon;
 using Ryujinx.Ava.Common.Locale;
+using Ryujinx.Ava.Systems.SetupWizard;
 using Ryujinx.Ava.UI.Helpers;
+using Ryujinx.Ava.Utilities;
 using Ryujinx.Common.Configuration;
 using Ryujinx.Common.Logging;
 using Ryujinx.HLE.Exceptions;
 using Ryujinx.HLE.FileSystem;
 using System;
 using System.IO;
+using System.Threading.Tasks;
 
-namespace Ryujinx.Ava.UI.SetupWizard
+namespace Ryujinx.Ava.UI.SetupWizard.Pages
 {
-    public partial class RyujinxSetupWizard
+    public partial class SetupKeysPageContext : SetupWizardPageContext
     {
-        private Result InstallKeys(string directory)
+        public override Result CompleteStep() =>
+            !Directory.Exists(KeysFolderPath)
+                ? Result.Fail 
+                : InstallKeys(KeysFolderPath);
+
+        [ObservableProperty]
+        public partial string KeysFolderPath { get; set; }
+
+        [RelayCommand]
+        private static async Task Browse(TextBox tb)
+        {
+            Optional<IStorageFolder> result = await RyujinxApp.MainWindow.ViewModel.StorageProvider.OpenSingleFolderPickerAsync(new FolderPickerOpenOptions 
+            {
+                Title = LocaleManager.Instance[LocaleKeys.SetupWizardKeysPageFolderPopupTitle]
+            });
+
+            if (result.TryGet(out IStorageFolder keyFolder)) 
+            {
+                tb.Text = keyFolder.TryGetLocalPath();
+            }
+        }
+
+        private static Result InstallKeys(string directory)
         {
             try
             {
@@ -53,11 +82,11 @@ namespace Ryujinx.Ava.UI.SetupWizard
 
                 NotificationHelper.ShowError(message, waitingExit: true);
 
-                return Result.Failure(new MessageError(ex.Message));
+                return Result.Failure(new MessageError(message));
             }
             finally
             {
-                _mainWindow.VirtualFileSystem.ReloadKeySet();
+                RyujinxApp.MainWindow.VirtualFileSystem.ReloadKeySet();
             }
 
             return Result.Success;
