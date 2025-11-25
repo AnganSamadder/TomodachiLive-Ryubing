@@ -144,7 +144,7 @@ namespace Ryujinx.Ava.UI.Windows
                     await ShowIntelMacWarningAsync();
 
                     if (Program.IsFirstStart)
-                        await RyujinxSetupWizardWindow.ShowAsync(this);
+                        await RyujinxSetupWizardWindow.ShowAsync(overwriteMode: false, this);
                 });
 
                 if (CommandLineState.FirmwareToInstallPathArg.TryGet(out FilePath fwPath))
