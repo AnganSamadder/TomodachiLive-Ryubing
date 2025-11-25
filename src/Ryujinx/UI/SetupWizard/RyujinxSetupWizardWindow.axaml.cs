@@ -23,23 +23,23 @@ namespace Ryujinx.Ava.UI.SetupWizard
             }
         }
 
-        public static Task ShowAsync(Window owner = null)
+        public static Task ShowAsync(bool overwriteMode, Window owner = null)
         {
             if (!CanShowSetupWizard)
                 return Task.CompletedTask;
 
             Task windowTask = ShowAsync(
-                CreateWindow(out RyujinxSetupWizard wiz),
+                CreateWindow(out RyujinxSetupWizard wiz, overwriteMode),
                 owner
             );
             _ = wiz.Start();
             return windowTask;
         }
 
-        public static RyujinxSetupWizardWindow CreateWindow(out RyujinxSetupWizard setupWizard)
+        public static RyujinxSetupWizardWindow CreateWindow(out RyujinxSetupWizard setupWizard, bool overwriteMode = false)
         {
             RyujinxSetupWizardWindow window = new();
-            window.DataContext = setupWizard = new RyujinxSetupWizard(window);
+            window.DataContext = setupWizard = new RyujinxSetupWizard(window, overwriteMode);
             window.Height = 600;
             window.Width = 750;
             return window;

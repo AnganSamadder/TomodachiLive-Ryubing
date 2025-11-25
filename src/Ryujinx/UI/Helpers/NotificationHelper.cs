@@ -22,12 +22,14 @@ namespace Ryujinx.Ava.UI.Helpers
 
         private readonly BlockingCollection<Notification> _notifications = new();
 
-        public NotificationHelper(Window host)
+        public NotificationHelper(Window host,
+            NotificationPosition visiblePosition = NotificationPosition.BottomRight,
+            int maxItems = MaxNotifications)
         {
             _notificationManager = new WindowNotificationManager(host)
             {
-                Position = NotificationPosition.BottomRight,
-                MaxItems = MaxNotifications,
+                Position = visiblePosition,
+                MaxItems = maxItems,
                 Margin = new Thickness(0, 0, 15, 40)
             };
 

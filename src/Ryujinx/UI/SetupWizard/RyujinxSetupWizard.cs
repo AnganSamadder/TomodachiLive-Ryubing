@@ -7,15 +7,13 @@ using System.Threading.Tasks;
 
 namespace Ryujinx.Ava.UI.SetupWizard
 {
-    public class RyujinxSetupWizard(RyujinxSetupWizardWindow wizardWindow)
+    public class RyujinxSetupWizard(RyujinxSetupWizardWindow wizardWindow, bool overwriteMode)
     {
-        private readonly MainWindow _mainWindow = RyujinxApp.MainWindow;
-
         private bool _configWasModified;
 
-        public bool HasFirmware => _mainWindow.ContentManager.GetCurrentFirmwareVersion() != null;
-        
-        public NotificationHelper NotificationHelper { get; private set; }
+        public bool HasFirmware => RyujinxApp.MainWindow.ContentManager.GetCurrentFirmwareVersion() != null;
+
+        public NotificationHelper Notification { get; private set; }
 
         public async Task Start()
         {

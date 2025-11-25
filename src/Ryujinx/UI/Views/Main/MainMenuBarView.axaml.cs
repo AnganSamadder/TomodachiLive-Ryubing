@@ -51,7 +51,7 @@ namespace Ryujinx.Ava.UI.Views.Main
             AboutWindowMenuItem.Command = Commands.Create(AboutView.Show);
             CompatibilityListMenuItem.Command = Commands.Create(() => CompatibilityListWindow.Show());
             LdnGameListMenuItem.Command = Commands.Create(() => LdnGamesListWindow.Show());
-            SetupWizardMenuItem.Command = Commands.Create(() => RyujinxSetupWizardWindow.ShowAsync());
+            SetupWizardMenuItem.Command = Commands.Create(() => RyujinxSetupWizardWindow.ShowAsync(overwriteMode: true));
 
             UpdateMenuItem.Command = MainWindowViewModel.UpdateCommand;
 
