@@ -1,3 +1,4 @@
+using Avalonia;
 using Avalonia.Controls.Notifications;
 using Ryujinx.Ava.Common.Locale;
 using Ryujinx.Ava.Systems.Configuration;
@@ -17,8 +18,13 @@ namespace Ryujinx.Ava.UI.SetupWizard
 
         public async Task Start()
         {
-            // I wanted to do bottom center but that...literally just shows top center? Okay.
-            Notification = new NotificationHelper(wizardWindow, NotificationPosition.TopCenter);
+            Notification = new NotificationHelper(
+                wizardWindow,
+                // I wanted to do bottom center but that...literally just shows top center? Okay.
+                NotificationPosition.TopCenter, 
+                margin: new Thickness(0, wizardWindow.Height - 120, 0, 0)
+            );
+
             RyujinxSetupWizardWindow.IsOpen = true;
             Start:
             await FirstPage()
@@ -44,8 +50,6 @@ namespace Ryujinx.Ava.UI.SetupWizard
             Notification = null;
             wizardWindow.Close();
             RyujinxSetupWizardWindow.IsOpen = false;
-
-
         }
 
         private async ValueTask<bool> SetupKeys()
