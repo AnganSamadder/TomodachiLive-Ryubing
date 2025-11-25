@@ -1,8 +1,8 @@
+using Avalonia.Controls.Notifications;
 using Ryujinx.Ava.Common.Locale;
 using Ryujinx.Ava.Systems.Configuration;
 using Ryujinx.Ava.UI.Helpers;
 using Ryujinx.Ava.UI.SetupWizard.Pages;
-using Ryujinx.Ava.UI.Windows;
 using System.Threading.Tasks;
 
 namespace Ryujinx.Ava.UI.SetupWizard
@@ -17,7 +17,8 @@ namespace Ryujinx.Ava.UI.SetupWizard
 
         public async Task Start()
         {
-            NotificationHelper = new NotificationHelper(wizardWindow);
+            // I wanted to do bottom center but that...literally just shows top center? Okay.
+            Notification = new NotificationHelper(wizardWindow, NotificationPosition.TopCenter);
             RyujinxSetupWizardWindow.IsOpen = true;
             Start:
             await FirstPage()
@@ -37,17 +38,19 @@ namespace Ryujinx.Ava.UI.SetupWizard
                 goto Keys;
 
             Return:
-            NotificationHelper = null;
+            if (_configWasModified)
+                ConfigurationState.Instance.ToFileFormat().SaveConfig(Program.GlobalConfigurationPath);
+
+            Notification = null;
             wizardWindow.Close();
             RyujinxSetupWizardWindow.IsOpen = false;
 
-            if (_configWasModified)
-                ConfigurationState.Instance.ToFileFormat().SaveConfig(Program.GlobalConfigurationPath);
+
         }
 
         private async ValueTask<bool> SetupKeys()
         {
-            if (!_mainWindow.VirtualFileSystem.HasKeySet)
+            if (overwriteMode || !RyujinxApp.MainWindow.VirtualFileSystem.HasKeySet)
             {
                 Retry:
                 bool result = await NextPage()
@@ -67,11 +70,11 @@ namespace Ryujinx.Ava.UI.SetupWizard
 
         private async ValueTask<bool> SetupFirmware()
         {
-            if (!HasFirmware)
+            if (overwriteMode || !HasFirmware)
             {
-                if (!_mainWindow.VirtualFileSystem.HasKeySet)
+                if (!RyujinxApp.MainWindow.VirtualFileSystem.HasKeySet)
                 {
-                    NotificationHelper.ShowError("Keys still seem to not be installed. Please try again.");
+                    Notification.NotifyError("Keys still seem to not be installed. Please try again.");
                     return false;
                 }
 
