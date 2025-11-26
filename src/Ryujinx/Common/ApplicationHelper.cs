@@ -264,7 +264,7 @@ namespace Ryujinx.Ava.Common
                         {
                             Dispatcher.UIThread.Post(waitingDialog.Close);
 
-                            NotificationHelper.ShowInformation(
+                            RyujinxNotificationManager.ShowInformation(
                                 RyujinxApp.FormatTitle(LocaleKeys.DialogNcaExtractionTitle),
                                 $"{titleName}\n\n{LocaleManager.Instance[LocaleKeys.DialogNcaExtractionSuccessMessage]}");
                         }
@@ -380,7 +380,7 @@ namespace Ryujinx.Ava.Common
                         {
                             Dispatcher.UIThread.Post(waitingDialog.Close);
 
-                            NotificationHelper.ShowInformation(
+                            RyujinxNotificationManager.ShowInformation(
                                 RyujinxApp.FormatTitle(LocaleKeys.DialogNcaExtractionTitle),
                                 $"{updateName}\n\n{LocaleManager.Instance[LocaleKeys.DialogNcaExtractionSuccessMessage]}");
                         }

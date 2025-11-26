@@ -48,7 +48,7 @@ namespace Ryujinx.Ava.UI.SetupWizard
             where TControl : RyujinxControl<TViewModel>, new()
             where TViewModel : SetupWizardPageContext, new()
         {
-            boundViewModel = new() { Notifications = ownerWizard.Notification };
+            boundViewModel = new() { NotificationManager = ownerWizard.NotificationManager };
 
             return WithContent<TControl>(boundViewModel);
         }

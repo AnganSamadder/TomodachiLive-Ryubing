@@ -14,14 +14,15 @@ namespace Ryujinx.Ava.UI.SetupWizard
 
         public bool HasFirmware => RyujinxApp.MainWindow.ContentManager.GetCurrentFirmwareVersion() != null;
 
-        public NotificationHelper Notification { get; private set; }
+        public RyujinxNotificationManager NotificationManager { get; private set; }
 
         public async Task Start()
         {
-            Notification = new NotificationHelper(
-                wizardWindow,
+            NotificationManager = wizardWindow.CreateNotificationManager(
                 // I wanted to do bottom center but that...literally just shows top center? Okay.
-                NotificationPosition.TopCenter, 
+                // Fuck it, weird window height hack to do it instead.
+                // 120 is not exact, just a random number. Looks fine though.
+                NotificationPosition.TopCenter,
                 margin: new Thickness(0, wizardWindow.Height - 120, 0, 0)
             );
 
@@ -47,7 +48,7 @@ namespace Ryujinx.Ava.UI.SetupWizard
             if (_configWasModified)
                 ConfigurationState.Instance.ToFileFormat().SaveConfig(Program.GlobalConfigurationPath);
 
-            Notification = null;
+            NotificationManager = null;
             wizardWindow.Close();
             RyujinxSetupWizardWindow.IsOpen = false;
         }
@@ -78,7 +79,7 @@ namespace Ryujinx.Ava.UI.SetupWizard
             {
                 if (!RyujinxApp.MainWindow.VirtualFileSystem.HasKeySet)
                 {
-                    Notification.NotifyError("Keys still seem to not be installed. Please try again.");
+                    NotificationManager.Error("Keys still seem to not be installed. Please try again.");
                     return false;
                 }
 

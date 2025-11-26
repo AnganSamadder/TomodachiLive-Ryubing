@@ -135,7 +135,7 @@ namespace Ryujinx.Ava.UI.Windows
         {
             base.OnApplyTemplate(e);
 
-            NotificationHelper.Shared = new NotificationHelper(this);
+            RyujinxNotificationManager.Shared = new RyujinxNotificationManager(this);
 
             Executor.ExecuteBackgroundAsync(async () =>
             {

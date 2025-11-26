@@ -1955,14 +1955,14 @@ namespace Ryujinx.Ava.UI.ViewModels
         {
             if (ConfigurationState.Instance.Debug.DebuggerSuspendOnStart)
             {
-                NotificationHelper.ShowInformation(
+                RyujinxNotificationManager.ShowInformation(
                     LocaleManager.Instance[LocaleKeys.NotificationLaunchCheckSuspendOnStartTitle],
                     LocaleManager.Instance[LocaleKeys.NotificationLaunchCheckSuspendOnStartMessage]);
             }
 
             if (ConfigurationState.Instance.Debug.EnableGdbStub)
             {
-                NotificationHelper.ShowInformation(
+                RyujinxNotificationManager.ShowInformation(
                     LocaleManager.Instance.UpdateAndGetDynamicValue(LocaleKeys.NotificationLaunchCheckGdbStubTitle, ConfigurationState.Instance.Debug.GdbStubPort.Value),
                     LocaleManager.Instance[LocaleKeys.NotificationLaunchCheckGdbStubMessage]);
             }
@@ -1981,7 +1981,7 @@ namespace Ryujinx.Ava.UI.ViewModels
                     _ => LocaleKeys.SettingsTabSystemDramSize4GiB,
                 };
 
-                NotificationHelper.ShowWarning(
+                RyujinxNotificationManager.ShowWarning(
                     LocaleManager.Instance.UpdateAndGetDynamicValue(
                         LocaleKeys.NotificationLaunchCheckDramSizeTitle, 
                         LocaleManager.Instance[memoryConfigurationLocaleKey]

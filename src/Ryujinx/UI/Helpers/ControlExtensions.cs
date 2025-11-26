@@ -1,9 +1,18 @@
+using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Controls.Notifications;
 
 namespace Ryujinx.Ava.UI.Helpers
 {
     public static class ControlExtensions
     {
+        public static RyujinxNotificationManager CreateNotificationManager(
+            this Window window,
+            NotificationPosition visiblePosition = NotificationPosition.BottomRight,
+            int maxItems = RyujinxNotificationManager.MaxNotifications,
+            Thickness? margin = null
+        ) => new(window, visiblePosition, maxItems, margin);
+
         extension(Control ctrl)
         {
             public int GridRow

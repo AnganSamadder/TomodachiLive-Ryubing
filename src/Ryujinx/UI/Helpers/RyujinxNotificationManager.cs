@@ -4,25 +4,24 @@ using Avalonia.Controls.Notifications;
 using Avalonia.Threading;
 using Ryujinx.Ava.Common.Locale;
 using Ryujinx.Common;
-using Ryujinx.Ava.UI.SetupWizard;
 using System;
 using System.Collections.Concurrent;
 using System.Threading;
 
 namespace Ryujinx.Ava.UI.Helpers
 {
-    public class NotificationHelper
+    public class RyujinxNotificationManager
     {
-        public static NotificationHelper Shared { get; set; }
+        public static RyujinxNotificationManager Shared { get; set; }
 
-        private const int MaxNotifications = 4;
+        public const int MaxNotifications = 4;
         private const int NotificationDelayInMs = 5000;
 
         private readonly WindowNotificationManager _notificationManager;
 
         private readonly BlockingCollection<Notification> _notifications = new();
 
-        public NotificationHelper(Window host,
+        public RyujinxNotificationManager(Window host,
             NotificationPosition visiblePosition = NotificationPosition.BottomRight,
             int maxItems = MaxNotifications, 
             Thickness? margin = null)
@@ -63,9 +62,9 @@ namespace Ryujinx.Ava.UI.Helpers
 
         public static void Show(string title, string text, NotificationType type, bool waitingExit = false,
             Action onClick = null, Action onClose = null)
-            => Shared?.Notify(title, text, type, waitingExit, onClick, onClose);
+            => Shared?.Send(title, text, type, waitingExit, onClick, onClose);
 
-        public void Notify(string title, string text, NotificationType type, bool waitingExit = false,
+        public void Send(string title, string text, NotificationType type, bool waitingExit = false,
             Action onClick = null, Action onClose = null)
         {
             TimeSpan delay = waitingExit
@@ -77,9 +76,9 @@ namespace Ryujinx.Ava.UI.Helpers
 
         #region Instance notification senders
 
-        public void NotifyInformation(string title, string text, bool waitingExit = false, Action onClick = null,
+        public void Information(string title, string text, bool waitingExit = false, Action onClick = null,
             Action onClose = null) =>
-            Notify(
+            Send(
                 title,
                 text,
                 NotificationType.Information,
@@ -87,9 +86,9 @@ namespace Ryujinx.Ava.UI.Helpers
                 onClick,
                 onClose);
 
-        public void NotifySuccess(string title, string text, bool waitingExit = false, Action onClick = null,
+        public void Success(string title, string text, bool waitingExit = false, Action onClick = null,
             Action onClose = null) =>
-            Notify(
+            Send(
                 title,
                 text,
                 NotificationType.Success,
@@ -97,9 +96,9 @@ namespace Ryujinx.Ava.UI.Helpers
                 onClick,
                 onClose);
 
-        public void NotifyWarning(string title, string text, bool waitingExit = false, Action onClick = null,
+        public void Warning(string title, string text, bool waitingExit = false, Action onClick = null,
             Action onClose = null) =>
-            Notify(
+            Send(
                 title,
                 text,
                 NotificationType.Warning,
@@ -107,9 +106,9 @@ namespace Ryujinx.Ava.UI.Helpers
                 onClick,
                 onClose);
 
-        public void NotifyError(string title, string text, bool waitingExit = false, Action onClick = null,
+        public void Error(string title, string text, bool waitingExit = false, Action onClick = null,
             Action onClose = null) =>
-            Notify(
+            Send(
                 title,
                 text,
                 NotificationType.Error,
@@ -117,8 +116,8 @@ namespace Ryujinx.Ava.UI.Helpers
                 onClick,
                 onClose);
 
-        public void NotifyError(string message, bool waitingExit = false) =>
-            NotifyError(
+        public void Error(string message, bool waitingExit = false) =>
+            Error(
                 LocaleManager.Instance[LocaleKeys.DialogErrorTitle],
                 $"{LocaleManager.Instance[LocaleKeys.DialogErrorMessage]}\n\n{message}",
                 waitingExit: waitingExit

@@ -61,7 +61,7 @@ namespace Ryujinx.Ava.UI.Views.Misc
 
             await clipboard.SetTextAsync(appData.IdString);
 
-            NotificationHelper.ShowInformation(
+            RyujinxNotificationManager.ShowInformation(
                 "Copied Title ID",
                 $"{appData.Name} ({appData.IdString})");
         }

@@ -79,14 +79,14 @@ namespace Ryujinx.Ava.UI.SetupWizard.Pages
                 SystemVersion installedFwVer = RyujinxApp.MainWindow.ContentManager.GetCurrentFirmwareVersion();
                 if (installedFwVer != null)
                 {
-                    Notifications.NotifyInformation(
+                    NotificationManager.Information(
                         "Firmware installed",
                         $"Installed firmware version {installedFwVer.VersionString}."
                     );
                 }
                 else
                 {
-                    Notifications.NotifyError(
+                    NotificationManager.Error(
                         "Firmware not installed",
                         $"It seems some error occurred when trying to install the firmware at path '{FirmwareSourcePath}'." +
                         "\nDid that folder contain a firmware dump?"
@@ -107,7 +107,7 @@ namespace Ryujinx.Ava.UI.SetupWizard.Pages
             }
             catch (Exception e)
             {
-                Notifications.NotifyError(e.Message, waitingExit: true);
+                NotificationManager.Error(e.Message, waitingExit: true);
                 return Result.Fail;
             }
 
