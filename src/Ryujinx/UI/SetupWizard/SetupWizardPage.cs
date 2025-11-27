@@ -8,18 +8,19 @@ using System.Threading.Tasks;
 
 namespace Ryujinx.Ava.UI.SetupWizard
 {
-    public partial class SetupWizardPage(ContentPresenter contentPresenter, RyujinxSetupWizard ownerWizard, bool isFirstPage = false) : BaseModel
+    public partial class SetupWizardPage(
+        ContentPresenter contentPresenter,
+        RyujinxSetupWizard ownerWizard,
+        bool isFirstPage = false) : BaseModel
     {
         private bool? _result;
         private readonly CancellationTokenSource _cts = new();
 
-        public bool IsFirstPage { get; } = isFirstPage;
+        public bool IsFirstPage => isFirstPage;
 
-        [ObservableProperty]
-        public partial string? Title { get; set; }
+        [ObservableProperty] public partial string? Title { get; set; }
 
-        [ObservableProperty]
-        public partial object? Content { get; set; }
+        [ObservableProperty] public partial object? Content { get; set; }
 
         [ObservableProperty] public partial object? HelpContent { get; set; }
 
