@@ -13,6 +13,12 @@ namespace Ryujinx.Common
         public const string SetupGuideWikiUrl =
             "https://git.ryujinx.app/ryubing/ryujinx/-/wikis/Setup-&-Configuration-Guide";
 
+        public const string DumpKeysWikiUrl =
+            "https://git.ryujinx.app/ryubing/ryujinx/-/wikis/Dumping/Keys";
+
+        public const string DumpFirmwareWikiUrl =
+            "https://git.ryujinx.app/ryubing/ryujinx/-/wikis/Dumping/Firmware";
+
         public const string MultiplayerWikiUrl =
             "https://git.ryujinx.app/ryubing/ryujinx/-/wikis/Multiplayer-(LDN-Local-Wireless)-Guide";
     }

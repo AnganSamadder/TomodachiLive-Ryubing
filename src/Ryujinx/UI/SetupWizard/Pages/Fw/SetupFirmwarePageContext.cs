@@ -1,10 +1,13 @@
 using Avalonia.Controls;
+using Avalonia.Layout;
 using Avalonia.Platform.Storage;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Gommon;
 using Ryujinx.Ava.Common.Locale;
+using Ryujinx.Ava.UI.Helpers;
 using Ryujinx.Ava.Utilities;
+using Ryujinx.Common;
 using Ryujinx.Common.Configuration;
 using Ryujinx.HLE.FileSystem;
 using System;
@@ -66,6 +69,32 @@ namespace Ryujinx.Ava.UI.SetupWizard.Pages
             {
                 tb.Text = firmwareFolder.TryGetLocalPath();
             }
+        }
+
+        public override Control CreateHelpContent()
+        {
+            Grid grid = new()
+            {
+                RowDefinitions = [new(GridLength.Auto), new(GridLength.Auto)],
+                HorizontalAlignment = HorizontalAlignment.Center
+            };
+
+            grid.Children.Add(new TextBlock
+            {
+                Text = "Not sure how to get your firmware off of your Switch?",
+                HorizontalAlignment = HorizontalAlignment.Center,
+                GridRow = 0
+            });
+
+            grid.Children.Add(new HyperlinkButton
+            {
+                Content = "Click here to view a guide.",
+                NavigateUri = new Uri(SharedConstants.DumpFirmwareWikiUrl),
+                HorizontalAlignment = HorizontalAlignment.Center,
+                GridRow = 1
+            });
+
+            return grid;
         }
 
         public override Result CompleteStep()

@@ -18,11 +18,15 @@ namespace Ryujinx.Ava.UI.SetupWizard
 
         public bool IsFirstPage => isFirstPage;
 
+        public RyujinxSetupWizard Parent => ownerWizard;
+
         [ObservableProperty] public partial string? Title { get; set; }
 
         [ObservableProperty] public partial object? Content { get; set; }
 
         [ObservableProperty] public partial object? HelpContent { get; set; }
+
+        [ObservableProperty] public partial bool HasHelpContent { get; set; }
 
         [ObservableProperty]
         public partial object? ActionContent { get; set; } = LocaleManager.Instance[LocaleKeys.SetupWizardActionNext];

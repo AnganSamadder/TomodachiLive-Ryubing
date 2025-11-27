@@ -10,12 +10,11 @@
              x:Class="Ryujinx.Ava.UI.SetupWizard.SetupWizardPageView">
     <Grid RowDefinitions="*,Auto" Margin="60">
         <ScrollViewer>
-            <Grid RowDefinitions="Auto,*,Auto">
+            <Grid RowDefinitions="Auto,*">
                 <TextBlock Grid.Row="0" 
                            TextWrapping="WrapWithOverflow"
                            FontSize="46"
                            Text="{Binding Title}" />
-
                 <ContentPresenter Grid.Row="1" 
                                   Content="{Binding}"
                                   IsVisible="{Binding !#InfoToggle.IsChecked}"
@@ -28,22 +27,44 @@
                     </ContentPresenter.DataTemplates>
                 </ContentPresenter>
 
-                <Grid Grid.Row="2" 
-                      ColumnDefinitions="Auto,*" 
+                <Grid Grid.Row="1" 
+                      ColumnDefinitions="*" RowDefinitions="*,Auto"
+                      VerticalAlignment="Stretch" 
+                      HorizontalAlignment="Stretch"
                       IsVisible="{Binding #InfoToggle.IsChecked}">
-                    <StackPanel Spacing="5" VerticalAlignment="Top">
-                        <HyperlinkButton NavigateUri="https://discord.gg/PEuzjrFXUA" Content="Join Discord" />
-                    </StackPanel>
-                    <ContentPresenter Content="{Binding}"
-                                      Grid.Column="1"
-                                      Margin="20,0,0,0"
-                                      TextWrapping="WrapWithOverflow">
-                        <ContentPresenter.DataTemplates>
-                            <DataTemplate DataType="{x:Type wiz:SetupWizardPage}">
-                                <ContentControl Content="{Binding HelpContent}" />
-                            </DataTemplate>
-                        </ContentPresenter.DataTemplates>
-                    </ContentPresenter>
+                    <Border
+                        Margin="15"
+                        IsVisible="{Binding HasHelpContent}"
+                        HorizontalAlignment="Stretch"
+                        VerticalAlignment="Stretch"
+                        ClipToBounds="True"
+                        CornerRadius="5"
+                        Background="{DynamicResource AppListBackgroundColor}">
+                        <ContentPresenter Content="{Binding}"
+                                          Margin="5"
+                                          TextWrapping="WrapWithOverflow" VerticalAlignment="Center" HorizontalAlignment="Center">
+                            <ContentPresenter.DataTemplates>
+                                <DataTemplate DataType="{x:Type wiz:SetupWizardPage}">
+                                    <ContentControl Content="{Binding HelpContent}" />
+                                </DataTemplate>
+                            </ContentPresenter.DataTemplates>
+                        </ContentPresenter>
+                    </Border>
+                    <Button Grid.Row="1"
+                        VerticalAlignment="Bottom"
+                        HorizontalAlignment="Center"
+                        MinWidth="45"
+                        MinHeight="32"
+                        MaxWidth="45"
+                        MaxHeight="32"
+                        Padding="8"
+                        Background="Transparent"
+                        Click="Button_OnClick"
+                        CornerRadius="5"
+                        Tag="https://discord.gg/PEuzjrFXUA"
+                        ToolTip.Tip="{ext:Locale AboutDiscordUrlTooltipMessage}">
+                        <Image Source="{Binding Parent.DiscordLogo}" />
+                    </Button>
                 </Grid>
             </Grid>
         </ScrollViewer>

@@ -1,11 +1,14 @@
 using Avalonia.Controls;
+using Avalonia.Layout;
 using Avalonia.Platform.Storage;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using DynamicData;
 using Gommon;
 using Ryujinx.Ava.Common.Locale;
+using Ryujinx.Ava.UI.Helpers;
 using Ryujinx.Ava.Utilities;
+using Ryujinx.Common;
 using Ryujinx.Common.Configuration;
 using Ryujinx.Common.Logging;
 using Ryujinx.HLE.Exceptions;
@@ -20,21 +23,48 @@ namespace Ryujinx.Ava.UI.SetupWizard.Pages
     {
         public override Result CompleteStep() =>
             !Directory.Exists(KeysFolderPath)
-                ? Result.Fail 
+                ? Result.Fail
                 : InstallKeys(KeysFolderPath);
 
-        [ObservableProperty]
-        public partial string KeysFolderPath { get; set; }
+        public override Control CreateHelpContent()
+        {
+            Grid grid = new()
+            {
+                RowDefinitions = [new(GridLength.Auto), new(GridLength.Auto)],
+                HorizontalAlignment = HorizontalAlignment.Center
+            };
+
+            grid.Children.Add(new TextBlock
+            {
+                Text = "Not sure how to get your keys?",
+                HorizontalAlignment = HorizontalAlignment.Center,
+                GridRow = 0
+            });
+
+            grid.Children.Add(new HyperlinkButton
+            {
+                Content = "Click here to view a guide.",
+                HorizontalAlignment = HorizontalAlignment.Center,
+                NavigateUri = new Uri(SharedConstants.DumpKeysWikiUrl),
+                GridRow = 1
+            });
+
+            return grid;
+        }
+
+        [ObservableProperty] public partial string KeysFolderPath { get; set; }
 
         [RelayCommand]
         private static async Task Browse(TextBox tb)
         {
-            Optional<IStorageFolder> result = await RyujinxApp.MainWindow.ViewModel.StorageProvider.OpenSingleFolderPickerAsync(new FolderPickerOpenOptions 
-            {
-                Title = LocaleManager.Instance[LocaleKeys.SetupWizardKeysPageFolderPopupTitle]
-            });
+            Optional<IStorageFolder> result =
+                await RyujinxApp.MainWindow.ViewModel.StorageProvider.OpenSingleFolderPickerAsync(
+                    new FolderPickerOpenOptions
+                    {
+                        Title = LocaleManager.Instance[LocaleKeys.SetupWizardKeysPageFolderPopupTitle]
+                    });
 
-            if (result.TryGet(out IStorageFolder keyFolder)) 
+            if (result.TryGet(out IStorageFolder keyFolder))
             {
                 tb.Text = keyFolder.TryGetLocalPath();
             }

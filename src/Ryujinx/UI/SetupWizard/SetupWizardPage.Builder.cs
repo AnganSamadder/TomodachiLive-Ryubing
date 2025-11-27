@@ -1,7 +1,9 @@
 using Avalonia;
 using Avalonia.Controls;
+using Gommon;
 using Ryujinx.Ava.Common.Locale;
 using Ryujinx.Ava.UI.Controls;
+using System;
 
 namespace Ryujinx.Ava.UI.SetupWizard
 {
@@ -34,6 +36,7 @@ namespace Ryujinx.Ava.UI.SetupWizard
         public SetupWizardPage WithHelpContent(object? content)
         {
             HelpContent = content;
+            HasHelpContent = content != null;
             return this;
         }
 
@@ -44,12 +47,17 @@ namespace Ryujinx.Ava.UI.SetupWizard
             return this;
         }
 
-        public SetupWizardPage WithContent<TControl, TViewModel>(out TViewModel boundViewModel)
-            where TControl : RyujinxControl<TViewModel>, new()
-            where TViewModel : SetupWizardPageContext, new()
-            => WithContent<TControl>(
-                boundViewModel = new() { NotificationManager = ownerWizard.NotificationManager }
-            );
+        public SetupWizardPage WithContent<TControl, TContext>(out TContext boundContext)
+            where TControl : RyujinxControl<TContext>, new()
+            where TContext : SetupWizardPageContext, new()
+        {
+            boundContext = new() { NotificationManager = ownerWizard.NotificationManager };
+
+            if (boundContext.CreateHelpContent() is { } content)
+                WithHelpContent(content);
+
+            return WithContent<TControl>(boundContext);
+        }
 
         public SetupWizardPage WithActionContent(LocaleKeys content) =>
             WithActionContent(LocaleManager.Instance[content]);
