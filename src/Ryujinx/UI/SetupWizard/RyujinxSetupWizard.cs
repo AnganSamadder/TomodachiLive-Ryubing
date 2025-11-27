@@ -162,8 +162,6 @@ namespace Ryujinx.Ava.UI.SetupWizard
 
             DiscordLogo.Dispose();
 
-            Console.WriteLine("disposed");
-
             GC.SuppressFinalize(this);
         }
 
