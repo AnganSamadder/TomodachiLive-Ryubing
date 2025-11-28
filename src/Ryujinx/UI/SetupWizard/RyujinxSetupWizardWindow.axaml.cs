@@ -1,5 +1,4 @@
 using Avalonia.Controls;
-using Gommon;
 using Ryujinx.Ava.Systems.Configuration;
 using Ryujinx.Ava.UI.Windows;
 using Ryujinx.Common.Configuration;
