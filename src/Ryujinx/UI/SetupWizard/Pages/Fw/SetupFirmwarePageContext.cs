@@ -71,7 +71,7 @@ namespace Ryujinx.Ava.UI.SetupWizard.Pages
             }
         }
 
-        public override Control CreateHelpContent()
+        public override object CreateHelpContent()
         {
             Grid grid = new()
             {

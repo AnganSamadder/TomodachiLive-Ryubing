@@ -3,6 +3,7 @@ using Avalonia.Styling;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Gommon;
+using Ryujinx.Ava.Common;
 using Ryujinx.Ava.Common.Locale;
 using Ryujinx.Ava.Systems.Configuration;
 using System;
@@ -36,20 +37,14 @@ namespace Ryujinx.Ava.UI.ViewModels
             Dispatcher.UIThread.Post(() => UpdateLogoTheme(ConfigurationState.Instance.UI.BaseStyle.Value));
         }
 
-        private const string LogoPathFormat = "resm:Ryujinx.Assets.UIImages.Logo_{0}_{1}.png?assembly=Ryujinx";
-
         private void UpdateLogoTheme(string theme)
         {
             bool isDarkTheme = theme == "Dark" ||
                                (theme == "Auto" && RyujinxApp.DetectSystemTheme() == ThemeVariant.Dark);
 
-            string themeName = isDarkTheme ? "Dark" : "Light";
-
-            DiscordLogo = LoadBitmap(LogoPathFormat.Format("Discord", themeName));
-            GitLabLogo = LoadBitmap(LogoPathFormat.Format("GitLab", themeName));
+            DiscordLogo = EmbeddedAvaloniaResources.GetIconByNameAndTheme("Discord", isDarkTheme);
+            GitLabLogo = EmbeddedAvaloniaResources.GetIconByNameAndTheme("GitLab", isDarkTheme);
         }
-
-        private static Bitmap LoadBitmap(string uri) => new(Avalonia.Platform.AssetLoader.Open(new Uri(uri)));
 
         public void Dispose()
         {

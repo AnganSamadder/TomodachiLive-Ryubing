@@ -1,5 +1,7 @@
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Layout;
+using Avalonia.Media;
 using Gommon;
 using Ryujinx.Ava.Common.Locale;
 using Ryujinx.Ava.UI.Controls;
@@ -35,6 +37,23 @@ namespace Ryujinx.Ava.UI.SetupWizard
 
         public SetupWizardPage WithHelpContent(object? content)
         {
+            if (content is string str)
+            {
+                TextBlock tb = new()
+                {
+                    HorizontalAlignment = HorizontalAlignment.Center,
+                    VerticalAlignment = VerticalAlignment.Center,
+                    TextAlignment = TextAlignment.Center,
+                    TextWrapping = TextWrapping.Wrap,
+                    FontSize = 20.0,
+                    Text = str
+                };
+
+                tb.Classes.Add("h1");
+
+                content = tb;
+            }
+
             HelpContent = content;
             HasHelpContent = content != null;
             return this;

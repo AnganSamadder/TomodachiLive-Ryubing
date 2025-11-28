@@ -1,4 +1,3 @@
-using Avalonia.Controls;
 using Gommon;
 using Ryujinx.Ava.UI.Helpers;
 using Ryujinx.Ava.UI.ViewModels;
@@ -10,8 +9,9 @@ namespace Ryujinx.Ava.UI.SetupWizard
         public RyujinxNotificationManager NotificationManager { get; init; }
 
         public abstract Result CompleteStep();
-
-        public virtual Control CreateHelpContent()
+#nullable enable
+        public virtual object? CreateHelpContent()
+#nullable disable
         {
             return null;
         }

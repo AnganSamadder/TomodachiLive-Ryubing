@@ -26,7 +26,7 @@ namespace Ryujinx.Ava.UI.SetupWizard.Pages
                 ? Result.Fail
                 : InstallKeys(KeysFolderPath);
 
-        public override Control CreateHelpContent()
+        public override object CreateHelpContent()
         {
             Grid grid = new()
             {
