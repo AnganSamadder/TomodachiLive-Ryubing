@@ -17,7 +17,7 @@ using System.Threading.Tasks;
 
 namespace Ryujinx.Ava.UI.SetupWizard.Pages
 {
-    public partial class SetupFirmwarePageContext : SetupWizardPageContext
+    public partial class SetupFirmwarePageContext() : SetupWizardPageContext(LocaleKeys.SetupWizardFirmwarePageTitle)
     {
         [ObservableProperty]
         public partial string FirmwareSourcePath { get; set; }

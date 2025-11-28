@@ -11,9 +11,7 @@ namespace Ryujinx.Ava.UI.SetupWizard
             if (_overwrite || !RyujinxApp.MainWindow.VirtualFileSystem.HasKeySet)
             {
                 Retry:
-                bool result = await NextPage()
-                    .WithTitle(LocaleKeys.SetupWizardKeysPageTitle)
-                    .WithContent<SetupKeysPage, SetupKeysPageContext>(out SetupKeysPageContext keyContext)
+                bool result = await NextPage<SetupKeysPage, SetupKeysPageContext>(out SetupKeysPageContext keyContext)
                     .Show();
 
                 if (!result)
@@ -37,9 +35,7 @@ namespace Ryujinx.Ava.UI.SetupWizard
                 }
 
                 Retry:
-                bool result = await NextPage()
-                    .WithTitle(LocaleKeys.SetupWizardFirmwarePageTitle)
-                    .WithContent<SetupFirmwarePage, SetupFirmwarePageContext>(out SetupFirmwarePageContext fwContext)
+                bool result = await NextPage<SetupFirmwarePage, SetupFirmwarePageContext>(out SetupFirmwarePageContext fwContext)
                     .Show();
 
                 if (!result)

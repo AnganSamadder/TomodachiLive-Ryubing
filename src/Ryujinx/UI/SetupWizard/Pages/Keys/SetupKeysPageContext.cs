@@ -19,12 +19,12 @@ using System.Threading.Tasks;
 
 namespace Ryujinx.Ava.UI.SetupWizard.Pages
 {
-    public partial class SetupKeysPageContext : SetupWizardPageContext
+    public partial class SetupKeysPageContext() : SetupWizardPageContext(LocaleKeys.SetupWizardKeysPageTitle)
     {
         public override Result CompleteStep() =>
-            !Directory.Exists(KeysFolderPath)
-                ? Result.Fail
-                : InstallKeys(KeysFolderPath);
+            Directory.Exists(KeysFolderPath)
+                ? InstallKeys(KeysFolderPath)
+                : Result.Fail;
 
         public override object CreateHelpContent()
         {

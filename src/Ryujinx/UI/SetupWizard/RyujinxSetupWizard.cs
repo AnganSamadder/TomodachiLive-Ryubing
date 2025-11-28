@@ -7,6 +7,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using Ryujinx.Ava.Common;
 using Ryujinx.Ava.Common.Locale;
 using Ryujinx.Ava.Systems.Configuration;
+using Ryujinx.Ava.UI.Controls;
 using Ryujinx.Ava.UI.Helpers;
 using Ryujinx.Ava.UI.ViewModels;
 using System;
@@ -36,6 +37,13 @@ namespace Ryujinx.Ava.UI.SetupWizard
         private SetupWizardPage FirstPage() => new(_window.WizardPresenter, this, isFirstPage: true);
 
         private SetupWizardPage NextPage() => new(_window.WizardPresenter, this);
+
+        private SetupWizardPage NextPage<TControl, TContext>(out TContext boundContext)
+            where TControl : RyujinxControl<TContext>, new()
+            where TContext : SetupWizardPageContext, new()
+            => NextPage()
+                .WithContent<TControl, TContext>(out boundContext)
+                .WithTitle(boundContext.Title);
 
         public void SignalConfigModified()
         {
