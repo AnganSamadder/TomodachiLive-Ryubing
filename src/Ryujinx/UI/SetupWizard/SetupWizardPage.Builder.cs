@@ -68,7 +68,7 @@ namespace Ryujinx.Ava.UI.SetupWizard
             where TControl : RyujinxControl<TContext>, new()
             where TContext : SetupWizardPageContext, new()
         {
-            boundContext = new() { NotificationManager = ownerWizard.NotificationManager };
+            boundContext = new() { OwningWizard = ownerWizard };
 
             if (boundContext.CreateHelpContent() is { } content)
                 WithHelpContent(content);
@@ -82,6 +82,12 @@ namespace Ryujinx.Ava.UI.SetupWizard
         public SetupWizardPage WithActionContent(object? content)
         {
             ActionContent = content;
+            return this;
+        }
+
+        public SetupWizardPage WithHelpButtonVisible(bool visible)
+        {
+            ShowHelpButton = visible;
             return this;
         }
     }

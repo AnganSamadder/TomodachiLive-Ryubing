@@ -43,7 +43,8 @@ namespace Ryujinx.Ava.UI.SetupWizard
             where TContext : SetupWizardPageContext, new()
             => NextPage()
                 .WithContent<TControl, TContext>(out boundContext)
-                .WithTitle(boundContext.Title);
+                .WithTitle(boundContext.Title)
+                .WithActionContent(boundContext.ActionContent);
 
         public void SignalConfigModified()
         {
@@ -81,6 +82,9 @@ namespace Ryujinx.Ava.UI.SetupWizard
             Firmware:
             if (!await SetupFirmware())
                 goto Keys;
+
+            if (!await Finish())
+                goto Firmware;
 
             Return:
             if (_configWasModified)

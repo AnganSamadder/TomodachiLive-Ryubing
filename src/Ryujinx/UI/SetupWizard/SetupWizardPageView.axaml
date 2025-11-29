@@ -70,8 +70,7 @@
         </ScrollViewer>
 
         <Grid ColumnDefinitions="Auto,Auto,*" Grid.Row="1">
-            <ToggleButton Name="InfoToggle"
-                          Padding="6">
+            <ToggleButton Name="InfoToggle" Padding="6" IsVisible="{Binding ShowHelpButton}">
                 <fa:Icon Value="fa-solid fa-circle-info" />
             </ToggleButton>
 

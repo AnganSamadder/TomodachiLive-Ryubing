@@ -1,5 +1,6 @@
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Input;
 using Avalonia.Layout;
 using Avalonia.Threading;
 using Gommon;
@@ -31,6 +32,7 @@ namespace Ryujinx.Ava.UI.Views.Main
     {
         public MainWindow Window { get; private set; }
 
+
         public MainMenuBarView()
         {
             InitializeComponent();
@@ -51,7 +53,9 @@ namespace Ryujinx.Ava.UI.Views.Main
             AboutWindowMenuItem.Command = Commands.Create(AboutView.Show);
             CompatibilityListMenuItem.Command = Commands.Create(() => CompatibilityListWindow.Show());
             LdnGameListMenuItem.Command = Commands.Create(() => LdnGamesListWindow.Show());
-            SetupWizardMenuItem.Command = Commands.Create(() => RyujinxSetupWizardWindow.ShowAsync(overwriteMode: true));
+            SetupWizardMenuItem.Command = Commands.Create(() =>
+                RyujinxSetupWizardWindow.ShowAsync(overwriteMode: !PollShiftPressed())
+            );
 
             UpdateMenuItem.Command = MainWindowViewModel.UpdateCommand;
 
@@ -64,7 +68,40 @@ namespace Ryujinx.Ava.UI.Views.Main
                     WindowSize1440PMenuItem.Command =
                         WindowSize2160PMenuItem.Command = Commands.Create<string>(ChangeWindowSize);
 
+            KeyDown += OnKeyDown;
+            KeyUp += OnKeyUp;
+
             LocaleManager.Instance.LocaleChanged += OnLocaleChanged;
+        }
+
+        /// <summary>
+        ///     KeyUp is not reliably invoked (or invoked at all, seemingly) when a window showing up causes the main menu bar to view,
+        ///     as shift is technically raised when that control is no longer the foreground control.
+        ///
+        ///     This stores <see cref="IsShiftPressed"/> to a temp variable, sets <see cref="IsShiftPressed"/> to false (if it is true), then returns the temp variable.
+        /// </summary>
+        private bool PollShiftPressed()
+        {
+            bool temp = IsShiftPressed;
+            if (temp)
+                IsShiftPressed = false;
+            return temp;
+        }
+
+        private bool IsShiftPressed { get; set; }
+
+        private void OnKeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key is Key.LeftShift or Key.RightShift && !IsShiftPressed) 
+                //down is called even for keys that have been held for a while, aka key repeats.
+                //the check for shift being pressed prevents setting the variable every time the down event is received, if shift is already known to be pressed.
+                IsShiftPressed = true;
+        }
+
+        private void OnKeyUp(object sender, KeyEventArgs e)
+        {
+            if (e.Key is Key.LeftShift or Key.RightShift)
+                IsShiftPressed = false;
         }
 
         private void OnLocaleChanged()
@@ -147,11 +184,13 @@ namespace Ryujinx.Ava.UI.Views.Main
             }
             else
             {
-                bool customConfigExists = File.Exists(Program.GetDirGameUserConfig(ViewModel.SelectedApplication.IdString));
+                bool customConfigExists =
+                    File.Exists(Program.GetDirGameUserConfig(ViewModel.SelectedApplication.IdString));
 
                 if (!ViewModel.IsGameRunning || !customConfigExists)
                 {
-                    await Window.SettingsWindow.ShowDialog(Window); // The game is not running, or if the user configuration does not exist
+                    await Window.SettingsWindow
+                        .ShowDialog(Window); // The game is not running, or if the user configuration does not exist
                 }
                 else
                 {
@@ -175,7 +214,8 @@ namespace Ryujinx.Ava.UI.Views.Main
             if (!MiiApplet.CanStart(out ApplicationData appData, out BlitStruct<ApplicationControlProperty> nacpData))
                 return;
 
-            await ViewModel.LoadApplication(appData, ViewModel.IsFullScreen || ViewModel.StartGamesInFullscreen, nacpData);
+            await ViewModel.LoadApplication(appData, ViewModel.IsFullScreen || ViewModel.StartGamesInFullscreen,
+                nacpData);
         }
 
         public async Task OpenCheatManagerForCurrentApp()
@@ -183,7 +223,8 @@ namespace Ryujinx.Ava.UI.Views.Main
             if (!ViewModel.IsGameRunning)
                 return;
 
-            string name = ViewModel.AppHost.Device.Processes.ActiveApplication.ApplicationControlProperties.Title[(int)ViewModel.AppHost.Device.System.State.DesiredTitleLanguage].NameString.ToString();
+            string name = ViewModel.AppHost.Device.Processes.ActiveApplication.ApplicationControlProperties
+                .Title[(int)ViewModel.AppHost.Device.System.State.DesiredTitleLanguage].NameString.ToString();
 
             await StyleableAppWindow.ShowAsync(
                 new CheatWindow(
@@ -212,18 +253,24 @@ namespace Ryujinx.Ava.UI.Views.Main
         {
             ViewModel.AreMimeTypesRegistered = FileAssociationHelper.Install();
             if (ViewModel.AreMimeTypesRegistered)
-                await ContentDialogHelper.CreateInfoDialog(LocaleManager.Instance[LocaleKeys.DialogInstallFileTypesSuccessMessage], string.Empty, LocaleManager.Instance[LocaleKeys.InputDialogOk], string.Empty, string.Empty);
+                await ContentDialogHelper.CreateInfoDialog(
+                    LocaleManager.Instance[LocaleKeys.DialogInstallFileTypesSuccessMessage], string.Empty,
+                    LocaleManager.Instance[LocaleKeys.InputDialogOk], string.Empty, string.Empty);
             else
-                await ContentDialogHelper.CreateErrorDialog(LocaleManager.Instance[LocaleKeys.DialogInstallFileTypesErrorMessage]);
+                await ContentDialogHelper.CreateErrorDialog(
+                    LocaleManager.Instance[LocaleKeys.DialogInstallFileTypesErrorMessage]);
         }
 
         private async Task UninstallFileTypes()
         {
             ViewModel.AreMimeTypesRegistered = !FileAssociationHelper.Uninstall();
             if (!ViewModel.AreMimeTypesRegistered)
-                await ContentDialogHelper.CreateInfoDialog(LocaleManager.Instance[LocaleKeys.DialogUninstallFileTypesSuccessMessage], string.Empty, LocaleManager.Instance[LocaleKeys.InputDialogOk], string.Empty, string.Empty);
+                await ContentDialogHelper.CreateInfoDialog(
+                    LocaleManager.Instance[LocaleKeys.DialogUninstallFileTypesSuccessMessage], string.Empty,
+                    LocaleManager.Instance[LocaleKeys.InputDialogOk], string.Empty, string.Empty);
             else
-                await ContentDialogHelper.CreateErrorDialog(LocaleManager.Instance[LocaleKeys.DialogUninstallFileTypesErrorMessage]);
+                await ContentDialogHelper.CreateErrorDialog(
+                    LocaleManager.Instance[LocaleKeys.DialogUninstallFileTypesErrorMessage]);
         }
 
         private void ChangeWindowSize(string resolution)
@@ -235,7 +282,7 @@ namespace Ryujinx.Ava.UI.Views.Main
 
             // Correctly size window when 'TitleBar' is enabled (Nov. 14, 2024)
             double barsHeight = ((Window.StatusBarHeight + Window.MenuBarHeight) +
-                (ConfigurationState.Instance.ShowOldUI ? (int)Window.TitleBar.Height : 0));
+                                 (ConfigurationState.Instance.ShowOldUI ? (int)Window.TitleBar.Height : 0));
 
             double windowWidthScaled = (resolutionWidth * Program.WindowScaleFactor);
             double windowHeightScaled = ((resolutionHeight + barsHeight) * Program.WindowScaleFactor);

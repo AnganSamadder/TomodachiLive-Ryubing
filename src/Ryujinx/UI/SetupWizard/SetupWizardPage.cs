@@ -28,6 +28,8 @@ namespace Ryujinx.Ava.UI.SetupWizard
 
         [ObservableProperty] public partial bool HasHelpContent { get; set; }
 
+        [ObservableProperty] public partial bool ShowHelpButton { get; set; } = true;
+
         [ObservableProperty]
         public partial object? ActionContent { get; set; } = LocaleManager.Instance[LocaleKeys.SetupWizardActionNext];
 

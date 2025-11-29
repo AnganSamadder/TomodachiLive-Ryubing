@@ -35,8 +35,9 @@ namespace Ryujinx.Ava.UI.SetupWizard
                 }
 
                 Retry:
-                bool result = await NextPage<SetupFirmwarePage, SetupFirmwarePageContext>(out SetupFirmwarePageContext fwContext)
-                    .Show();
+                bool result =
+                    await NextPage<SetupFirmwarePage, SetupFirmwarePageContext>(out SetupFirmwarePageContext fwContext)
+                        .Show();
 
                 if (!result)
                     return false;
@@ -49,5 +50,10 @@ namespace Ryujinx.Ava.UI.SetupWizard
 
             return true;
         }
+
+        private ValueTask<bool> Finish() 
+            => NextPage<SetupFinishedPage, SetupFinishedPageContext>(out _)
+                .WithHelpButtonVisible(false)
+                .Show();
     }
 }
