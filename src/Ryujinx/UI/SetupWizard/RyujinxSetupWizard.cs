@@ -106,7 +106,8 @@ namespace Ryujinx.Ava.UI.SetupWizard
                                (theme == "Auto" && RyujinxApp.DetectSystemTheme() == ThemeVariant.Dark);
 
             DiscordLogo = EmbeddedAvaloniaResources
-                .GetIconByNameAndTheme("Discord", isDarkTheme);
+                .GetIconByNameAndTheme("Discord", isDarkTheme)
+                .CreateScaledBitmap(new PixelSize(32, 24));
         }
 
         public void Dispose()

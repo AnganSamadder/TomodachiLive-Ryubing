@@ -1,8 +1,8 @@
+using Avalonia;
 using Avalonia.Media.Imaging;
 using Avalonia.Styling;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
-using Gommon;
 using Ryujinx.Ava.Common;
 using Ryujinx.Ava.Common.Locale;
 using Ryujinx.Ava.Systems.Configuration;
@@ -42,8 +42,10 @@ namespace Ryujinx.Ava.UI.ViewModels
             bool isDarkTheme = theme == "Dark" ||
                                (theme == "Auto" && RyujinxApp.DetectSystemTheme() == ThemeVariant.Dark);
 
-            DiscordLogo = EmbeddedAvaloniaResources.GetIconByNameAndTheme("Discord", isDarkTheme);
-            GitLabLogo = EmbeddedAvaloniaResources.GetIconByNameAndTheme("GitLab", isDarkTheme);
+            DiscordLogo = EmbeddedAvaloniaResources.GetIconByNameAndTheme("Discord", isDarkTheme)
+                .CreateScaledBitmap(new PixelSize(32, 24));
+            GitLabLogo = EmbeddedAvaloniaResources.GetIconByNameAndTheme("GitLab", isDarkTheme)
+                .CreateScaledBitmap(new PixelSize(32, 31));
         }
 
         public void Dispose()
