@@ -42,9 +42,9 @@ namespace Ryujinx.Ava.UI.ViewModels
             bool isDarkTheme = theme == "Dark" ||
                                (theme == "Auto" && RyujinxApp.DetectSystemTheme() == ThemeVariant.Dark);
 
-            DiscordLogo = EmbeddedAvaloniaResources.GetIconByNameAndTheme("Discord", isDarkTheme)
+            DiscordLogo = UIImages.GetLogoByNameAndTheme("Discord", isDarkTheme)
                 .CreateScaledBitmap(new PixelSize(32, 24));
-            GitLabLogo = EmbeddedAvaloniaResources.GetIconByNameAndTheme("GitLab", isDarkTheme)
+            GitLabLogo = UIImages.GetLogoByNameAndTheme("GitLab", isDarkTheme)
                 .CreateScaledBitmap(new PixelSize(32, 31));
         }
 
