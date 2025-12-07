@@ -82,9 +82,13 @@ namespace Ryujinx.Ava.UI.SetupWizard
             Firmware:
             if (!await SetupFirmware())
                 goto Keys;
+            
+            GameDirs:
+            if (!await SetupGameDirs())
+                goto Firmware;
 
             if (!await Finish())
-                goto Firmware;
+                goto GameDirs;
 
             Return:
             if (_configWasModified)

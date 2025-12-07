@@ -19,6 +19,9 @@ namespace Ryujinx.Common
         public const string DumpFirmwareWikiUrl =
             "https://git.ryujinx.app/ryubing/ryujinx/-/wikis/Dumping/Firmware";
 
+        public const string DumpContentWikiUrl =
+            "https://git.ryujinx.app/ryubing/ryujinx/-/wikis/Dumping/Games,-Updates-&-DLC";
+
         public const string MultiplayerWikiUrl =
             "https://git.ryujinx.app/ryubing/ryujinx/-/wikis/Multiplayer-(LDN-Local-Wireless)-Guide";
     }

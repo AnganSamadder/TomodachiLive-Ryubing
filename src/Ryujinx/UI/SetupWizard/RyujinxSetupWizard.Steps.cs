@@ -1,5 +1,5 @@
-using Ryujinx.Ava.Common.Locale;
 using Ryujinx.Ava.UI.SetupWizard.Pages;
+using Ryujinx.UI.SetupWizard.Pages;
 using System.Threading.Tasks;
 
 namespace Ryujinx.Ava.UI.SetupWizard
@@ -47,6 +47,34 @@ namespace Ryujinx.Ava.UI.SetupWizard
 
                 OnPropertyChanged(nameof(HasFirmware));
             }
+
+            return true;
+        }
+
+        private async ValueTask<bool> SetupGameDirs()
+        {
+
+            if (!HasFirmware)
+            {
+                NotificationManager.Error("Firmware still seems to not be installed. Please try again.");
+                return false;
+            }
+
+            Retry:
+            bool result =
+                await NextPage<SetupGameDirsPage, SetupGameDirsPageContext>(out SetupGameDirsPageContext gdContext)
+                    .Show();
+
+            if (!result)
+                return false;
+
+            var res = gdContext.CompleteStep();
+
+            if (res.IsOf<RetryError>())
+                return false;
+
+            if (!res)
+                goto Retry;
 
             return true;
         }

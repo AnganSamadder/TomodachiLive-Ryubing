@@ -40,8 +40,8 @@ namespace Ryujinx.Ava.UI.SetupWizard
         {
             RyujinxSetupWizardWindow window = new();
             window.DataContext = setupWizard = new RyujinxSetupWizard(window, overwriteMode);
-            window.Height = 600;
-            window.Width = 750;
+            window.Height = 700;
+            window.Width = 825;
             return window;
         }
 

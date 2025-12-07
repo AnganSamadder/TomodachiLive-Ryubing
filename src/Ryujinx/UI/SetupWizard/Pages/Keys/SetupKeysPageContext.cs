@@ -21,11 +21,6 @@ namespace Ryujinx.Ava.UI.SetupWizard.Pages
 {
     public partial class SetupKeysPageContext() : SetupWizardPageContext(LocaleKeys.SetupWizardKeysPageTitle)
     {
-        public override Result CompleteStep() =>
-            Directory.Exists(KeysFolderPath)
-                ? InstallKeys(KeysFolderPath)
-                : Result.Fail;
-
         public override object CreateHelpContent()
         {
             Grid grid = new()
@@ -70,8 +65,19 @@ namespace Ryujinx.Ava.UI.SetupWizard.Pages
             }
         }
 
-        private Result InstallKeys(string directory)
+        public override Result CompleteStep()
         {
+            if (string.IsNullOrEmpty(KeysFolderPath) && RyujinxApp.MainWindow.VirtualFileSystem.HasKeySet)
+            {
+                NotificationManager.Information(
+                    title: LocaleManager.Instance[LocaleKeys.DialogConfirmationTitle],
+                    "Skipped setting up keys as you already have a valid key installation and did not choose a folder to install from.\n\nClick 'Back' if you wish to reinstall your keys.");
+                return Result.Success; // This handles the user selecting no folder and just hitting Next.
+            }
+
+            if (!Directory.Exists(KeysFolderPath))
+                return Result.Fail;
+
             try
             {
                 string systemDirectory = AppDataManager.KeysDirPath;
@@ -81,9 +87,9 @@ namespace Ryujinx.Ava.UI.SetupWizard.Pages
                     systemDirectory = AppDataManager.KeysDirPathUser;
                 }
 
-                Logger.Info?.Print(LogClass.Application, $"Installing keys from {directory}");
+                Logger.Info?.Print(LogClass.Application, $"Installing keys from {KeysFolderPath}");
 
-                ContentManager.InstallKeys(directory, systemDirectory);
+                ContentManager.InstallKeys(KeysFolderPath, systemDirectory);
 
                 NotificationManager.Information(
                     title: LocaleManager.Instance[LocaleKeys.RyujinxInfo],
@@ -105,7 +111,7 @@ namespace Ryujinx.Ava.UI.SetupWizard.Pages
                 if (ex is FormatException)
                 {
                     message = LocaleManager.Instance.UpdateAndGetDynamicValue(
-                        LocaleKeys.DialogKeysInstallerKeysNotFoundErrorMessage, directory);
+                        LocaleKeys.DialogKeysInstallerKeysNotFoundErrorMessage, KeysFolderPath);
                 }
 
                 NotificationManager.Error(message, waitingExit: true);

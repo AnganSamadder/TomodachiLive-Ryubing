@@ -99,6 +99,14 @@ namespace Ryujinx.Ava.UI.SetupWizard.Pages
 
         public override Result CompleteStep()
         {
+            if (string.IsNullOrEmpty(FirmwareSourcePath) && RyujinxSetupWizard.HasFirmware)
+            {
+                NotificationManager.Information(
+                    title: LocaleManager.Instance[LocaleKeys.DialogConfirmationTitle],
+                    "Skipped setting up firmware as you already have a valid firmware installation and did not choose a folder or file to install from.\n\nClick 'Back' if you wish to overwrite your firmware.");
+                return Result.Success; // This handles the user selecting no file/dir and just hitting Next.
+            }
+
             if (!Directory.Exists(FirmwareSourcePath))
                 return Result.Fail;
 
