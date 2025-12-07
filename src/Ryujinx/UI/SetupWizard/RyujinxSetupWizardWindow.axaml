@@ -2,18 +2,16 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:ext="clr-namespace:Ryujinx.Ava.Common.Markup"
         xmlns:windows="clr-namespace:Ryujinx.Ava.UI.Windows"
         xmlns:setupWizard="clr-namespace:Ryujinx.Ava.UI.SetupWizard"
         xmlns:controls="clr-namespace:Ryujinx.Ava.UI.Controls"
         CanResize="False"
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
         x:Class="Ryujinx.Ava.UI.SetupWizard.RyujinxSetupWizardWindow"
-        x:DataType="setupWizard:RyujinxSetupWizard"
-        Title="{ext:Locale SetupWizardFirstPageTitle}">
+        x:DataType="setupWizard:RyujinxSetupWizard">
     <Grid VerticalAlignment="Stretch" HorizontalAlignment="Stretch" RowDefinitions="Auto,*">
         <Grid Grid.Row="0" VerticalAlignment="Center" HorizontalAlignment="Left" Name="FlushControls">
-            <controls:RyujinxLogo ToolTip.Tip="{ext:Locale SetupWizardFirstPageTitle}"/>
+            <controls:RyujinxLogo Name="RyuLogo"/>
         </Grid>
         <ContentPresenter Grid.Row="1" Name="WizardPresenter"/>
     </Grid>

@@ -1,4 +1,5 @@
 using Avalonia;
+using Avalonia.Controls;
 using Avalonia.Controls.Notifications;
 using Avalonia.Media.Imaging;
 using Avalonia.Styling;
@@ -22,6 +23,12 @@ namespace Ryujinx.Ava.UI.SetupWizard
         private readonly RyujinxSetupWizardWindow _window;
         private readonly bool _overwrite;
 
+        public void SetWindowTitle(string titleText)
+        {
+            _window.Title = titleText;
+            ToolTip.SetTip(_window.RyuLogo, titleText);
+        }
+
         public RyujinxSetupWizard(RyujinxSetupWizardWindow wizardWindow, bool overwriteMode)
         {
             _window = wizardWindow;
@@ -31,6 +38,10 @@ namespace Ryujinx.Ava.UI.SetupWizard
             {
                 UpdateLogoTheme(ConfigurationState.Instance.UI.BaseStyle);
                 RyujinxApp.ThemeChanged += Ryujinx_ThemeChanged;
+            }
+            else
+            {
+                UpdateLogoTheme("Dark");
             }
         }
 
@@ -54,6 +65,9 @@ namespace Ryujinx.Ava.UI.SetupWizard
         public static bool HasFirmware => RyujinxApp.MainWindow.ContentManager.GetCurrentFirmwareVersion() != null;
 
         public RyujinxNotificationManager NotificationManager { get; private set; }
+
+        [ObservableProperty]
+        public partial SetupWizardPage CurrentPage { get; set; }
 
         public async Task Start()
         {

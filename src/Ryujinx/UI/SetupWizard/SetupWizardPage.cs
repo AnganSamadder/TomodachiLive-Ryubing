@@ -50,6 +50,7 @@ namespace Ryujinx.Ava.UI.SetupWizard
         public async ValueTask<bool> Show()
         {
             contentPresenter.Content = new SetupWizardPageView { ViewModel = this };
+            ownerWizard.SetWindowTitle(Title);
 
             try
             {
