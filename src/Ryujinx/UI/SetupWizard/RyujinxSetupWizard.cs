@@ -66,9 +66,6 @@ namespace Ryujinx.Ava.UI.SetupWizard
 
         public RyujinxNotificationManager NotificationManager { get; private set; }
 
-        [ObservableProperty]
-        public partial SetupWizardPage CurrentPage { get; set; }
-
         public async Task Start()
         {
             NotificationManager = _window.CreateNotificationManager(
