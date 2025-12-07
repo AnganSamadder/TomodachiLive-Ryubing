@@ -58,7 +58,7 @@ namespace Ryujinx.UI.SetupWizard.Pages
             {
                 Content = "Click here to view a guide.",
                 HorizontalAlignment = HorizontalAlignment.Center,
-                NavigateUri = new Uri(SharedConstants.DumpFirmwareWikiUrl),
+                NavigateUri = new Uri(SharedConstants.DumpContentWikiUrl),
                 GridRow = 1
             });
 
