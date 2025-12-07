@@ -38,6 +38,7 @@ namespace Ryujinx.Ava.Common.Locale
                 { LocaleKeys.RyujinxConfirm, [RyujinxApp.FullAppName] },
                 { LocaleKeys.RyujinxUpdater, [RyujinxApp.FullAppName] },
                 { LocaleKeys.RyujinxRebooter, [RyujinxApp.FullAppName] },
+                { LocaleKeys.SetupWizardGameDirsPageDescription, [RyujinxApp.FullAppName] },
                 { LocaleKeys.CompatibilityListSearchBoxWatermarkWithCount, [CompatibilityDatabase.Entries.Length] },
                 { LocaleKeys.CompatibilityListTitle, [CompatibilityDatabase.Entries.Length] }
             });
