@@ -62,7 +62,7 @@ namespace Ryujinx.Ava.UI.SetupWizard
                 // Fuck it, weird window height hack to do it instead.
                 // 120 is not exact, just a random number. Looks fine though.
                 NotificationPosition.TopCenter,
-                margin: new Thickness(0, _window.Height - 120, 0, 0)
+                margin: new Thickness(0, _window.Height - 135, 0, 0)
             );
 
             RyujinxSetupWizardWindow.IsOpen = true;

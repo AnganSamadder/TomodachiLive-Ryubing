@@ -68,12 +68,7 @@ namespace Ryujinx.Ava.UI.SetupWizard
             if (!result)
                 return false;
 
-            var res = gdContext.CompleteStep();
-
-            if (res.IsOf<RetryError>())
-                return false;
-
-            if (!res)
+            if (!gdContext.CompleteStep())
                 goto Retry;
 
             return true;

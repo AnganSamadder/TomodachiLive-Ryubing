@@ -27,8 +27,8 @@ namespace Ryujinx.UI.SetupWizard.Pages
         {
             if (GameDirs.Count is 0)
             {
-                NotificationManager.Error("At least one folder for games must be selected; otherwise the UI will be empty.");
-                return Result.Failure(RetryError.Shared);
+                NotificationManager.Error(LocaleManager.Instance[LocaleKeys.SetupWizardGameDirsPageNoFoldersSelectedError]);
+                return Result.Fail;
             }
 
             ConfigurationState.Instance.UI.GameDirs.Value = GameDirs.ToList();
@@ -49,14 +49,14 @@ namespace Ryujinx.UI.SetupWizard.Pages
 
             grid.Children.Add(new TextBlock
             {
-                Text = "Not sure how to get your games, updates, and/or DLC onto your PC?",
+                Text = LocaleManager.Instance[LocaleKeys.SetupWizardGameDirsPageHelpText],
                 HorizontalAlignment = HorizontalAlignment.Center,
                 GridRow = 0
             });
 
             grid.Children.Add(new HyperlinkButton
             {
-                Content = "Click here to view a guide.",
+                Content = LocaleManager.Instance[LocaleKeys.SetupWizardHelpLinkButton],
                 HorizontalAlignment = HorizontalAlignment.Center,
                 NavigateUri = new Uri(SharedConstants.DumpContentWikiUrl),
                 GridRow = 1
@@ -64,10 +64,5 @@ namespace Ryujinx.UI.SetupWizard.Pages
 
             return grid;
         }
-    }
-
-    public struct RetryError : IErrorState
-    {
-        public static readonly RetryError Shared = new();
     }
 }

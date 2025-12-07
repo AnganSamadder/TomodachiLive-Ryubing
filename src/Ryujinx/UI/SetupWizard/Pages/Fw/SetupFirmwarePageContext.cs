@@ -19,39 +19,40 @@ namespace Ryujinx.Ava.UI.SetupWizard.Pages
 {
     public partial class SetupFirmwarePageContext() : SetupWizardPageContext(LocaleKeys.SetupWizardFirmwarePageTitle)
     {
-        [ObservableProperty]
-        public partial string FirmwareSourcePath { get; set; }
+        [ObservableProperty] public partial string FirmwareSourcePath { get; set; }
 
         [RelayCommand]
         private static async Task BrowseFile(TextBox tb)
         {
-            Optional<IStorageFile> result = await RyujinxApp.MainWindow.ViewModel.StorageProvider.OpenSingleFilePickerAsync(new FilePickerOpenOptions
-            {
-                Title = LocaleManager.Instance[LocaleKeys.SetupWizardFirmwarePageFilePopupTitle],
-                FileTypeFilter = new List<FilePickerFileType>
-                {
-                    new(LocaleManager.Instance[LocaleKeys.FileDialogAllTypes])
+            Optional<IStorageFile> result =
+                await RyujinxApp.MainWindow.ViewModel.StorageProvider.OpenSingleFilePickerAsync(
+                    new FilePickerOpenOptions
                     {
-                        Patterns = ["*.xci", "*.zip"],
-                        AppleUniformTypeIdentifiers = ["com.ryujinx.xci", "public.zip-archive"],
-                        MimeTypes = ["application/x-nx-xci", "application/zip"],
-                    },
-                    new("XCI")
-                    {
-                        Patterns = ["*.xci"],
-                        AppleUniformTypeIdentifiers = ["com.ryujinx.xci"],
-                        MimeTypes = ["application/x-nx-xci"],
-                    },
-                    new("ZIP")
-                    {
-                        Patterns = ["*.zip"],
-                        AppleUniformTypeIdentifiers = ["public.zip-archive"],
-                        MimeTypes = ["application/zip"],
-                    }
-                }
-            });
+                        Title = LocaleManager.Instance[LocaleKeys.SetupWizardFirmwarePageFilePopupTitle],
+                        FileTypeFilter = new List<FilePickerFileType>
+                        {
+                            new(LocaleManager.Instance[LocaleKeys.FileDialogAllTypes])
+                            {
+                                Patterns = ["*.xci", "*.zip"],
+                                AppleUniformTypeIdentifiers = ["com.ryujinx.xci", "public.zip-archive"],
+                                MimeTypes = ["application/x-nx-xci", "application/zip"],
+                            },
+                            new("XCI")
+                            {
+                                Patterns = ["*.xci"],
+                                AppleUniformTypeIdentifiers = ["com.ryujinx.xci"],
+                                MimeTypes = ["application/x-nx-xci"],
+                            },
+                            new("ZIP")
+                            {
+                                Patterns = ["*.zip"],
+                                AppleUniformTypeIdentifiers = ["public.zip-archive"],
+                                MimeTypes = ["application/zip"],
+                            }
+                        }
+                    });
 
-            if (result.TryGet(out IStorageFile firmwareFile)) 
+            if (result.TryGet(out IStorageFile firmwareFile))
             {
                 tb.Text = firmwareFile.TryGetLocalPath();
             }
@@ -60,12 +61,14 @@ namespace Ryujinx.Ava.UI.SetupWizard.Pages
         [RelayCommand]
         private static async Task BrowseFolder(TextBox tb)
         {
-            Optional<IStorageFolder> result = await RyujinxApp.MainWindow.ViewModel.StorageProvider.OpenSingleFolderPickerAsync(new FolderPickerOpenOptions 
-            {
-                Title = LocaleManager.Instance[LocaleKeys.SetupWizardFirmwarePageFolderPopupTitle]
-            });
+            Optional<IStorageFolder> result =
+                await RyujinxApp.MainWindow.ViewModel.StorageProvider.OpenSingleFolderPickerAsync(
+                    new FolderPickerOpenOptions
+                    {
+                        Title = LocaleManager.Instance[LocaleKeys.SetupWizardFirmwarePageFolderPopupTitle]
+                    });
 
-            if (result.TryGet(out IStorageFolder firmwareFolder)) 
+            if (result.TryGet(out IStorageFolder firmwareFolder))
             {
                 tb.Text = firmwareFolder.TryGetLocalPath();
             }
@@ -81,14 +84,14 @@ namespace Ryujinx.Ava.UI.SetupWizard.Pages
 
             grid.Children.Add(new TextBlock
             {
-                Text = "Not sure how to get your firmware off of your Switch?",
+                Text = LocaleManager.Instance[LocaleKeys.SetupWizardFirmwarePageHelpText],
                 HorizontalAlignment = HorizontalAlignment.Center,
                 GridRow = 0
             });
 
             grid.Children.Add(new HyperlinkButton
             {
-                Content = "Click here to view a guide.",
+                Content = LocaleManager.Instance[LocaleKeys.SetupWizardHelpLinkButton],
                 NavigateUri = new Uri(SharedConstants.DumpFirmwareWikiUrl),
                 HorizontalAlignment = HorizontalAlignment.Center,
                 GridRow = 1
@@ -102,8 +105,12 @@ namespace Ryujinx.Ava.UI.SetupWizard.Pages
             if (string.IsNullOrEmpty(FirmwareSourcePath) && RyujinxSetupWizard.HasFirmware)
             {
                 NotificationManager.Information(
-                    title: LocaleManager.Instance[LocaleKeys.DialogConfirmationTitle],
-                    "Skipped setting up firmware as you already have a valid firmware installation and did not choose a folder or file to install from.\n\nClick 'Back' if you wish to overwrite your firmware.");
+                    title: LocaleManager.Instance[LocaleKeys.RyujinxInfo],
+                    text: LocaleManager.GetFormatted(
+                        LocaleKeys.SetupWizardFirmwarePageSkipText,
+                        LocaleManager.Instance[LocaleKeys.SetupWizardActionBack]
+                    )
+                );
                 return Result.Success; // This handles the user selecting no file/dir and just hitting Next.
             }
 
@@ -117,18 +124,24 @@ namespace Ryujinx.Ava.UI.SetupWizard.Pages
                 if (installedFwVer != null)
                 {
                     NotificationManager.Information(
-                        "Firmware installed",
-                        $"Installed firmware version {installedFwVer.VersionString}."
+                        LocaleManager.Instance[LocaleKeys.SetupWizardFirmwarePageInstallSuccessNotificationTitle],
+                        LocaleManager.GetFormatted(
+                            LocaleKeys.SetupWizardFirmwarePageInstallSuccessNotificationTitle,
+                            installedFwVer.VersionString
+                        )
                     );
                 }
                 else
                 {
                     NotificationManager.Error(
-                        "Firmware not installed",
-                        $"It seems some error occurred when trying to install the firmware at path '{FirmwareSourcePath}'." +
-                        "\nDid that folder contain a firmware dump?"
+                        LocaleManager.Instance[LocaleKeys.SetupWizardFirmwarePageInstallFailNotificationTitle],
+                        LocaleManager.GetFormatted(
+                            LocaleKeys.SetupWizardFirmwarePageInstallFailNotificationText,
+                            FirmwareSourcePath
+                        )
                     );
                 }
+
                 RyujinxApp.MainWindow.ViewModel.RefreshFirmwareStatus(installedFwVer, allowNullVersion: true);
 
                 // Purge Applet Cache.

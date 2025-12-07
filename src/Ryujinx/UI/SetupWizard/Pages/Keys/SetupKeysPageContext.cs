@@ -31,14 +31,14 @@ namespace Ryujinx.Ava.UI.SetupWizard.Pages
 
             grid.Children.Add(new TextBlock
             {
-                Text = "Not sure how to get your keys?",
+                Text = LocaleManager.Instance[LocaleKeys.SetupWizardKeysPageHelpText],
                 HorizontalAlignment = HorizontalAlignment.Center,
                 GridRow = 0
             });
 
             grid.Children.Add(new HyperlinkButton
             {
-                Content = "Click here to view a guide.",
+                Content = LocaleManager.Instance[LocaleKeys.SetupWizardHelpLinkButton],
                 HorizontalAlignment = HorizontalAlignment.Center,
                 NavigateUri = new Uri(SharedConstants.DumpKeysWikiUrl),
                 GridRow = 1
@@ -70,8 +70,11 @@ namespace Ryujinx.Ava.UI.SetupWizard.Pages
             if (string.IsNullOrEmpty(KeysFolderPath) && RyujinxApp.MainWindow.VirtualFileSystem.HasKeySet)
             {
                 NotificationManager.Information(
-                    title: LocaleManager.Instance[LocaleKeys.DialogConfirmationTitle],
-                    "Skipped setting up keys as you already have a valid key installation and did not choose a folder to install from.\n\nClick 'Back' if you wish to reinstall your keys.");
+                    title: LocaleManager.Instance[LocaleKeys.RyujinxInfo],
+                    text: LocaleManager.GetFormatted(
+                        LocaleKeys.SetupWizardKeysPageSkipText,
+                        LocaleManager.Instance[LocaleKeys.SetupWizardActionBack]
+                    ));
                 return Result.Success; // This handles the user selecting no folder and just hitting Next.
             }
 
