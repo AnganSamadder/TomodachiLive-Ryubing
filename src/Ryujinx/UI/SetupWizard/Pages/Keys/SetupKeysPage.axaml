@@ -3,12 +3,12 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:pages="clr-namespace:Ryujinx.Ava.UI.SetupWizard.Pages"
-             xmlns:markup="clr-namespace:Ryujinx.Ava.Common.Markup"
+             xmlns:ext="clr-namespace:Ryujinx.Ava.Common.Markup"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="Ryujinx.Ava.UI.SetupWizard.Pages.SetupKeysPage"
              x:DataType="pages:SetupKeysPageContext">
     <StackPanel>
-        <TextBlock Text="{markup:Locale SetupWizardKeysPageDescription}" Margin="0,0,0,10"/>
+        <TextBlock Text="{ext:Locale SetupWizardKeysPageDescription}" Margin="0,0,0,10"/>
         <Grid ColumnDefinitions="*,Auto">
             <TextBox Name="KeysFolderPathField" Text="{Binding KeysFolderPath}" IsReadOnly="True" />
             <Button Grid.Column="1"
