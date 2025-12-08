@@ -156,12 +156,9 @@ namespace Ryujinx.Headless
                 option.UserProfile = profile.Name;
 
             // Check if keys exists.
-            if (!File.Exists(Path.Combine(AppDataManager.KeysDirPath, "prod.keys")))
+            if (!File.Exists(Path.Combine(AppDataManager.GetKeysDir(), "prod.keys")))
             {
-                if (!(AppDataManager.Mode == AppDataManager.LaunchMode.UserProfile && File.Exists(Path.Combine(AppDataManager.KeysDirPathUser, "prod.keys"))))
-                {
-                    Logger.Error?.Print(LogClass.Application, "Keys not found");
-                }
+                Logger.Error?.Print(LogClass.Application, "Keys not found");
             }
 
             ReloadConfig();

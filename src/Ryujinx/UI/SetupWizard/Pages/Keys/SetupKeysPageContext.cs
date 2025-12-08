@@ -83,16 +83,9 @@ namespace Ryujinx.Ava.UI.SetupWizard.Pages
 
             try
             {
-                string systemDirectory = AppDataManager.KeysDirPath;
-                if (AppDataManager.Mode == AppDataManager.LaunchMode.UserProfile &&
-                    Directory.Exists(AppDataManager.KeysDirPathUser))
-                {
-                    systemDirectory = AppDataManager.KeysDirPathUser;
-                }
-
                 Logger.Info?.Print(LogClass.Application, $"Installing keys from {KeysFolderPath}");
 
-                ContentManager.InstallKeys(KeysFolderPath, systemDirectory);
+                ContentManager.InstallKeys(KeysFolderPath, AppDataManager.GetKeysDir());
 
                 NotificationManager.Information(
                     title: LocaleManager.Instance[LocaleKeys.RyujinxInfo],

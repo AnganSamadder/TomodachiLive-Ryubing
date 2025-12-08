@@ -1018,12 +1018,7 @@ namespace Ryujinx.Ava.UI.ViewModels
         {
             try
             {
-                string systemDirectory = AppDataManager.KeysDirPath;
-                if (AppDataManager.Mode == AppDataManager.LaunchMode.UserProfile &&
-                    Directory.Exists(AppDataManager.KeysDirPathUser))
-                {
-                    systemDirectory = AppDataManager.KeysDirPathUser;
-                }
+                string systemDirectory = AppDataManager.GetKeysDir();
 
                 string dialogTitle =
                     LocaleManager.Instance.UpdateAndGetDynamicValue(LocaleKeys.DialogKeysInstallerKeysInstallTitle);

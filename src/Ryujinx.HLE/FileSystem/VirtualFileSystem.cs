@@ -230,14 +230,19 @@ namespace Ryujinx.HLE.FileSystem
             string consoleKeyFile = null;
             string devKeyFile = null;
 
-            if (AppDataManager.Mode == AppDataManager.LaunchMode.UserProfile)
-            {
-                LoadSetAtPath(AppDataManager.KeysDirPathUser);
-            }
-
-            LoadSetAtPath(AppDataManager.KeysDirPath);
+            LoadSetAtPath(AppDataManager.GetKeysDir());
 
             HasKeySet = (prodKeyFile != null && titleKeyFile != null) || prodKeyFile != null;
+            
+            
+            ExternalKeyReader.ReadKeyFile(
+                KeySet, 
+                prodKeyFile, 
+                devKeyFile, 
+                titleKeyFile, 
+                consoleKeyFile);
+
+            return;
 
             void LoadSetAtPath(string basePath)
             {
@@ -266,13 +271,6 @@ namespace Ryujinx.HLE.FileSystem
                     devKeyFile = localDevKeyFile;
                 }
             }
-
-            ExternalKeyReader.ReadKeyFile(
-                KeySet, 
-                prodKeyFile, 
-                devKeyFile, 
-                titleKeyFile, 
-                consoleKeyFile);
         }
 
         public void ImportTickets(IFileSystem fs)

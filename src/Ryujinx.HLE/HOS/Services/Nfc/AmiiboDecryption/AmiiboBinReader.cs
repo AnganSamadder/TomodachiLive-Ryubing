@@ -334,7 +334,7 @@ namespace Ryujinx.HLE.HOS.Services.Nfc.AmiiboDecryption
 
         private static string GetKeyRetailBinPath()
         {
-            return Path.Combine(AppDataManager.KeysDirPath, "key_retail.bin");
+            return Path.Combine(AppDataManager.GetKeysDir(), "key_retail.bin");
         }
 
         public static bool HasAmiiboKeyFile => File.Exists(GetKeyRetailBinPath());

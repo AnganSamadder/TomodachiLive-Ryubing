@@ -31,6 +31,11 @@ namespace Ryujinx.Common.Configuration
         public static string KeysDirPath { get; private set; }
         public static string KeysDirPathUser { get; }
 
+        public static string GetKeysDir() =>
+            Mode is LaunchMode.UserProfile && Directory.Exists(KeysDirPathUser)
+                ? KeysDirPathUser
+                : KeysDirPath;
+
         public static string LogsDirPath { get; private set; }
 
         public const string DefaultNandDir = "bis";
