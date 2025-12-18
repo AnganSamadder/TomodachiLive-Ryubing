@@ -87,7 +87,7 @@ jobs:
         run: |
           pushd publish
           rm libarmeilleure-jitsupport.dylib
-          7zz a ../release_output/ryujinx-canary-${{ steps.version_info.outputs.build_version }}-${{ matrix.platform.zip_os_name }}.zip ../publish
+          7z a ../release_output/ryujinx-canary-${{ steps.version_info.outputs.build_version }}-${{ matrix.platform.zip_os_name }}.zip ../publish
           popd
           
           gli --access-token=${{ secrets.GITLAB_TOKEN }} --project=ryubing/canary --command=UploadGenericPackage "Ryubing-Canary|${{ steps.version_info.outputs.build_version }}|release_output/ryujinx-canary-${{ steps.version_info.outputs.build_version }}-${{ matrix.platform.zip_os_name }}.zip"
