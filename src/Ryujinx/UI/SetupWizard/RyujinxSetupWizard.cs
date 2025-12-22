@@ -57,14 +57,15 @@ namespace Ryujinx.Ava.UI.SetupWizard
                 .WithTitle(boundContext.Title)
                 .WithActionContent(boundContext.ActionContent);
 
-        public void SignalConfigModified()
-        {
-            _configWasModified = true;
-        }
-
         public static bool HasFirmware => RyujinxApp.MainWindow.ContentManager.GetCurrentFirmwareVersion() != null;
 
         public RyujinxNotificationManager NotificationManager { get; private set; }
+
+        internal void ModifyConfig(Action<ConfigurationState> modifier)
+        {
+            modifier(ConfigurationState.Instance);
+            _configWasModified = true;
+        }
 
         public async Task Start()
         {

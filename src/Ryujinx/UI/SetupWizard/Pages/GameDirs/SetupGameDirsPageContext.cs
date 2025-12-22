@@ -31,9 +31,12 @@ namespace Ryujinx.UI.SetupWizard.Pages
                 return Result.Fail;
             }
 
-            ConfigurationState.Instance.UI.GameDirs.Value = GameDirs.ToList();
-            ConfigurationState.Instance.UI.AutoloadDirs.Value = UpdateAndDlcDirs.ToList();
-            OwningWizard.SignalConfigModified();
+            OwningWizard.ModifyConfig(config =>
+            {
+                config.UI.GameDirs.Value = GameDirs.ToList();
+                config.UI.AutoloadDirs.Value = UpdateAndDlcDirs.ToList();
+            });
+
             RyujinxApp.MainWindow.LoadApplications();
 
             return Result.Success;
