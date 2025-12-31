@@ -102,7 +102,7 @@ namespace Ryujinx.Ava.UI.Views.Main
                     Margin = new Thickness(3, 0, 3, 0),
                     HorizontalAlignment = HorizontalAlignment.Stretch,
                     Header = language == currentLanguageCode ? $"{languageName}  ✔" : languageName,
-                    Command = Commands.Create(() => MainWindowViewModel.ChangeLanguage(language))
+                    Command = Commands.Create(() => MainWindowViewModel.ChangeLanguage(code))
                 };
 
                 yield return menuItem;
