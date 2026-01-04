@@ -139,16 +139,11 @@ namespace Ryujinx.Ava.UI.Windows
             Executor.ExecuteBackgroundAsync(async () =>
             {
                 await ShowIntelMacWarningAsync();
-                if (CommandLineState.FirmwareToInstallPathArg.TryGet(out FilePath fwPath))
+                if (RyujinxOptions.Shared.FirmwareToInstallPath.TryGet(out FilePath fwPath))
                 {
-                    if (fwPath is { ExistsAsFile: true, Extension: "xci" or "zip" } || fwPath.ExistsAsDirectory)
-                    {
-                        await Dispatcher.UIThread.InvokeAsync(() =>
-                            ViewModel.HandleFirmwareInstallation(fwPath));
-                        CommandLineState.FirmwareToInstallPathArg = default;
-                    }
-                    else
-                        Logger.Notice.Print(LogClass.UI, "Invalid firmware type provided. Path must be a directory, or a .zip or .xci file.");
+                    await Dispatcher.UIThread.InvokeAsync(() =>
+                        ViewModel.HandleFirmwareInstallation(fwPath));
+                    RyujinxOptions.Shared.FirmwareToInstallPath = default;
                 }
             });
         }
@@ -278,7 +273,7 @@ namespace Ryujinx.Ava.UI.Windows
             // Consider removing this at some point in the future when we don't need to worry about old saves.
             VirtualFileSystem.FixExtraData(LibHacHorizonManager.RyujinxClient);
 
-            AccountManager = new AccountManager(LibHacHorizonManager.RyujinxClient, CommandLineState.Profile);
+            AccountManager = new AccountManager(LibHacHorizonManager.RyujinxClient, RyujinxOptions.Shared.Profile);
 
             VirtualFileSystem.ReloadKeySet();
 
@@ -406,7 +401,7 @@ namespace Ryujinx.Ava.UI.Windows
                 await Dispatcher.UIThread.InvokeAsync(async () => await UserErrorDialog.ShowUserErrorDialog(UserError.NoKeys));
             }
 
-            if (!Updater.CanUpdate() || CommandLineState.HideAvailableUpdates)
+            if (!Updater.CanUpdate() || RyujinxOptions.Shared.HideAvailableUpdates)
                 return;
 
             switch (ConfigurationState.Instance.UpdateCheckerType.Value)

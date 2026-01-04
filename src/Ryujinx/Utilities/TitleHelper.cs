@@ -34,7 +34,7 @@ namespace Ryujinx.Ava.Utilities
             string titleIdSection = $"({activeProcess.ProgramIdText.ToUpper()})";
             string titleArchSection = activeProcess.Is64Bit ? "(64-bit)" : "(32-bit)";
 
-            return CommandLineState.RenderDocCaptureTitleFormat
+            return RyujinxOptions.Shared.RenderDocCaptureTitleFormat
                 .ReplaceIgnoreCase("{EmuVersion}", applicationVersion)
                 .ReplaceIgnoreCase("{GuestName}", titleNameSection)
                 .ReplaceIgnoreCase("{GuestVersion}", titleVersionSection)

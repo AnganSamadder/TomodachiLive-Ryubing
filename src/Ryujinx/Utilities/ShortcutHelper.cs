@@ -126,10 +126,10 @@ namespace Ryujinx.Ava.Utilities
             // args are first defined as a list, for easier adjustments in the future
             List<string> argsList = [];
 
-            if (!string.IsNullOrEmpty(CommandLineState.BaseDirPathArg))
+            if (!string.IsNullOrEmpty(RyujinxOptions.Shared.EmuDataBaseDirPath))
             {
                 argsList.Add("--root-data-dir");
-                argsList.Add($"\"{CommandLineState.BaseDirPathArg}\"");
+                argsList.Add($"\"{RyujinxOptions.Shared.EmuDataBaseDirPath}\"");
             }
 
             if (!string.IsNullOrEmpty(config))

@@ -255,41 +255,27 @@ namespace Ryujinx.Ava.UI.ViewModels
             return amiiboJson;
         }
 
-        private async Task<AmiiboJson?> ReadLocalJsonFileAsync()
+        private AmiiboJson? ReadLocalJsonFile()
         {
             bool isValid = false;
             AmiiboJson amiiboJson = new();
 
             try
             {
-                try
+                if (File.Exists(_amiiboJsonPath))
                 {
-                    if (File.Exists(_amiiboJsonPath))
-                    {
-                        isValid = TryGetAmiiboJson(await File.ReadAllTextAsync(_amiiboJsonPath), out amiiboJson);
-                    }
-                }
-                catch (Exception exception)
-                {
-                    Logger.Warning?.Print(LogClass.Application, $"Unable to read data from '{_amiiboJsonPath}': {exception}");
-                    isValid = false;
-                }
-
-                if (!isValid)
-                {
-                    return null;
+                    isValid = TryGetAmiiboJson(File.ReadAllText(_amiiboJsonPath), out amiiboJson);
                 }
             }
             catch (Exception exception)
             {
-                if (!isValid)
-                {
-                    Logger.Error?.Print(LogClass.Application, $"Couldn't get valid amiibo data: {exception}");
+                Logger.Warning?.Print(LogClass.Application, $"Unable to read data from '{_amiiboJsonPath}': {exception}");
+                isValid = false;
+            }
 
-                    // Neither local file is not valid JSON, close window.
-                    await ShowInfoDialog();
-                    Close();
-                }
+            if (!isValid)
+            {
+                return null;
             }
 
             return amiiboJson;
@@ -299,8 +285,8 @@ namespace Ryujinx.Ava.UI.ViewModels
         {
             AmiiboJson? amiiboJson;
 
-            if (CommandLineState.OnlyLocalAmiibo)
-                amiiboJson = await ReadLocalJsonFileAsync();
+            if (RyujinxOptions.Shared.OnlyLocalAmiibo)
+                amiiboJson = ReadLocalJsonFile();
             else
                 amiiboJson = await GetMostRecentAmiiboListOrDefaultJson();
 

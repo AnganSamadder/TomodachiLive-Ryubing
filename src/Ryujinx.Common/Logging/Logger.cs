@@ -12,6 +12,8 @@ namespace Ryujinx.Common.Logging
 {
     public static class Logger
     {
+        public static readonly TextWriter WriterProxy = new TextWriterProxy();
+
         private static readonly Stopwatch _time;
 
         private static readonly bool[] _enabledClasses;

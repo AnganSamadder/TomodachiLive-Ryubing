@@ -95,7 +95,7 @@ namespace Ryujinx.Ava
 
                     if (result == UserResult.Yes)
                     {
-                        _ = Process.Start(Environment.ProcessPath!, CommandLineState.Arguments);
+                        _ = Process.Start(Environment.ProcessPath!, RyujinxOptions.Shared.InputArguments);
                         desktop.Shutdown();
                         Environment.Exit(0);
                     }

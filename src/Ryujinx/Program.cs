@@ -98,7 +98,14 @@ namespace Ryujinx.Ava
                 return 0;
             }
 
-            Initialize(args);
+            try
+            {
+                Initialize(args);
+            }
+            catch
+            {
+                return 0;
+            }
 
             LoggerAdapter.Register();
 
@@ -143,7 +150,7 @@ namespace Ryujinx.Ava
             DiscordIntegrationModule.EmulatorStartedAt = Timestamps.Now;
 
             // Parse arguments
-            CommandLineState.ParseArguments(args);
+            RyujinxOptions.Read(args, out RyujinxOptions options);
 
             if (OperatingSystem.IsMacOS())
             {
@@ -163,7 +170,7 @@ namespace Ryujinx.Ava
             AppDomain.CurrentDomain.ProcessExit += (_, _) => Exit();
 
             // Setup base data directory.
-            AppDataManager.Initialize(CommandLineState.BaseDirPathArg);
+            AppDataManager.Initialize(options.EmuDataBaseDirPath);
 
             // Initialize the configuration.
             ConfigurationState.Initialize();
@@ -196,9 +203,9 @@ namespace Ryujinx.Ava
                 }
             }
 
-            if (CommandLineState.LaunchPathArg != null)
+            if (options.LaunchPath != null)
             {
-                MainWindow.DeferLoadApplication(CommandLineState.LaunchPathArg, CommandLineState.LaunchApplicationId, CommandLineState.StartFullscreenArg);
+                MainWindow.DeferLoadApplication(options.LaunchPath, options.LaunchApplicationId, options.StartFullscreen);
             }
         }
 
@@ -222,7 +229,6 @@ namespace Ryujinx.Ava
 
         public static void ReloadConfig(bool isRunGameWithCustomConfig = false)
         {
-
             string localConfigurationPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, ReleaseInformation.ConfigName);
             string appDataConfigurationPath = Path.Combine(AppDataManager.BaseDirPath, ReleaseInformation.ConfigName);
 
@@ -273,74 +279,50 @@ namespace Ryujinx.Ava
             UseHardwareAcceleration = ConfigurationState.Instance.EnableHardwareAcceleration;
 
             // Check if graphics backend was overridden
-            if (CommandLineState.OverrideGraphicsBackend is not null)
-                ConfigurationState.Instance.Graphics.GraphicsBackend.Value = CommandLineState.OverrideGraphicsBackend.ToLower() switch
-                {
-                    "opengl" => GraphicsBackend.OpenGl,
-                    "vulkan" => GraphicsBackend.Vulkan,
-                    _ => ConfigurationState.Instance.Graphics.GraphicsBackend
-                };
+            if (RyujinxOptions.Shared.GraphicsBackendOverride is not null)
+                ConfigurationState.Instance.Graphics.GraphicsBackend.Value =
+                    RyujinxOptions.Shared.GraphicsBackendOverride.Value;
 
             // Check if backend threading was overridden
-            if (CommandLineState.OverrideBackendThreading is not null)
-                ConfigurationState.Instance.Graphics.BackendThreading.Value = CommandLineState.OverrideBackendThreading.ToLower() switch
-                {
-                    "auto" => BackendThreading.Auto,
-                    "off" => BackendThreading.Off,
-                    "on" => BackendThreading.On,
-                    _ => ConfigurationState.Instance.Graphics.BackendThreading
-                };
+            if (RyujinxOptions.Shared.BackendThreadingOverride is not null)
+                ConfigurationState.Instance.Graphics.BackendThreading.Value =
+                    RyujinxOptions.Shared.BackendThreadingOverride.Value;
 
-            if (CommandLineState.OverrideBackendThreadingAfterReboot is not null)
-            {
-                BackendThreadingArg = CommandLineState.OverrideBackendThreadingAfterReboot;
-            }
+            if (RyujinxOptions.Shared.BackendThreadingOverrideAfterReboot is not null)
+                BackendThreadingArg = RyujinxOptions.Shared.BackendThreadingOverrideAfterReboot.Value.ToString();
+
 
             // Check if docked mode was overriden.
-            if (CommandLineState.OverrideDockedMode.HasValue)
-                ConfigurationState.Instance.System.EnableDockedMode.Value = CommandLineState.OverrideDockedMode.Value;
+            if (RyujinxOptions.Shared.DockedModeOverride.HasValue)
+                ConfigurationState.Instance.System.EnableDockedMode.Value =
+                    RyujinxOptions.Shared.DockedModeOverride.Value;
 
             // Check if HideCursor was overridden.
-            if (CommandLineState.OverrideHideCursor is not null)
-                ConfigurationState.Instance.HideCursor.Value = CommandLineState.OverrideHideCursor.ToLower() switch
-                {
-                    "never" => HideCursorMode.Never,
-                    "onidle" => HideCursorMode.OnIdle,
-                    "always" => HideCursorMode.Always,
-                    _ => ConfigurationState.Instance.HideCursor,
-                };
+            if (RyujinxOptions.Shared.HideCursorOverride is not null)
+                ConfigurationState.Instance.HideCursor.Value = RyujinxOptions.Shared.HideCursorOverride.Value;
 
             // Check if memoryManagerMode was overridden. 
-            if (CommandLineState.OverrideMemoryManagerMode is not null)
-                if (Enum.TryParse(CommandLineState.OverrideMemoryManagerMode, true, out MemoryManagerMode result))
-                {
-                    ConfigurationState.Instance.System.MemoryManagerMode.Value = result;
-                }
+            if (RyujinxOptions.Shared.MemoryManagerModeOverride is not null)
+                ConfigurationState.Instance.System.MemoryManagerMode.Value = RyujinxOptions.Shared.MemoryManagerModeOverride.Value;
 
             // Check if PPTC was overridden. 
-            if (CommandLineState.OverridePPTC is not null)
-                if (Enum.TryParse(CommandLineState.OverridePPTC, true, out bool result))
+            if (RyujinxOptions.Shared.PptcOverride is not null)
+                if (Enum.TryParse(RyujinxOptions.Shared.PptcOverride, true, out bool result))
                 {
                     ConfigurationState.Instance.System.EnablePtc.Value = result;
                 }
 
             // Check if region was overridden. 
-            if (CommandLineState.OverrideSystemRegion is not null)
-                if (Enum.TryParse(CommandLineState.OverrideSystemRegion, true, out Region result))
-                {
-                    ConfigurationState.Instance.System.Region.Value = result;
-                }
+            if (RyujinxOptions.Shared.SystemRegionOverride is not null)
+                ConfigurationState.Instance.System.Region.Value = RyujinxOptions.Shared.SystemRegionOverride.Value;
 
             //Check if language was overridden. 
-            if (CommandLineState.OverrideSystemLanguage is not null)
-                if (Enum.TryParse(CommandLineState.OverrideSystemLanguage, true, out Language result))
-                {
-                    ConfigurationState.Instance.System.Language.Value = result;
-                }
+            if (RyujinxOptions.Shared.SystemLanguageOverride is not null)
+                ConfigurationState.Instance.System.Language.Value = RyujinxOptions.Shared.SystemLanguageOverride.Value;
 
             // Check if hardware-acceleration was overridden.
-            if (CommandLineState.OverrideHardwareAcceleration != null)
-                UseHardwareAcceleration = CommandLineState.OverrideHardwareAcceleration.Value;
+            if (RyujinxOptions.Shared.HardwareAccelerationOverride is not null)
+                UseHardwareAcceleration = RyujinxOptions.Shared.HardwareAccelerationOverride.Value;
         }
 
         internal static void PrintSystemInfo()

@@ -181,7 +181,7 @@ namespace Ryujinx.Ava.Systems
 
                 if (shouldRestart)
                 {
-                    List<string> arguments = CommandLineState.Arguments.ToList();
+                    List<string> arguments = RyujinxOptions.Shared.InputArguments.ToList();
                     string executableDirectory = AppDomain.CurrentDomain.BaseDirectory;
 
                     // On macOS we perform the update at relaunch.
@@ -218,7 +218,7 @@ namespace Ryujinx.Ava.Systems
                             WorkingDirectory = executableDirectory,
                         };
 
-                        foreach (string argument in CommandLineState.Arguments)
+                        foreach (string argument in arguments)
                         {
                             processStart.ArgumentList.Add(argument);
                         }
