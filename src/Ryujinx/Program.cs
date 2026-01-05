@@ -1,5 +1,6 @@
 using Avalonia;
 using Avalonia.Threading;
+using CommandLine;
 using DiscordRPC;
 using Gommon;
 using Projektanker.Icons.Avalonia;
@@ -78,33 +79,36 @@ namespace Ryujinx.Ava
                 }
             }
 
-            bool noGuiArg = ConsumeCommandLineArgument(ref args, "--no-gui") || ConsumeCommandLineArgument(ref args, "nogui");
-            bool coreDumpArg = ConsumeCommandLineArgument(ref args, "--core-dumps");
+            PreviewerDetached = true;
+
+            if (ConsumeCommandLineArgument(ref args, "--no-gui") 
+                || ConsumeCommandLineArgument(ref args, "nogui"))
+            {
+                try
+                {
+                    HeadlessRyujinx.Entrypoint(args);
+                    return 0;
+                }
+                catch (Exception e)
+                {
+                    Logger.Error?.PrintMsg(LogClass.Application, $"Exception occurred when running Headless Ryujinx: {e.Message}\n{e.StackTrace}");
+                    return 1;
+                }
+            }
+
+            if (!Initialize(args, out RyujinxOptions options))
+            {
+                Logger.Flush();
+                return 1;
+            }
 
             // TODO: Ryujinx causes core dumps on Linux when it exits "uncleanly", eg. through an unhandled exception.
             //       This is undesirable and causes very odd behavior during development (the process stops responding, 
             //       the .NET debugger freezes or suddenly detaches, /tmp/ gets filled etc.), unless explicitly requested by the user.
             //       This needs to be investigated, but calling prctl() is better than modifying system-wide settings or leaving this be.
-            if (!coreDumpArg)
+            if (!options.CoreDumpsEnabled)
             {
                 OsUtils.SetCoreDumpable(false);
-            }
-
-            PreviewerDetached = true;
-
-            if (noGuiArg)
-            {
-                HeadlessRyujinx.Entrypoint(args);
-                return 0;
-            }
-
-            try
-            {
-                Initialize(args);
-            }
-            catch
-            {
-                return 0;
             }
 
             LoggerAdapter.Register();
@@ -144,13 +148,14 @@ namespace Ryujinx.Ava
             return found;
         }
 
-        private static void Initialize(string[] args)
+        private static Result Initialize(string[] args, out RyujinxOptions options)
         {
             // Ensure Discord presence timestamp begins at the absolute start of when Ryujinx is launched
             DiscordIntegrationModule.EmulatorStartedAt = Timestamps.Now;
 
             // Parse arguments
-            RyujinxOptions.Read(args, out RyujinxOptions options);
+            Result res = RyujinxOptions.Read(args, out options);
+            if (!res) return res;
 
             if (OperatingSystem.IsMacOS())
             {
@@ -207,6 +212,8 @@ namespace Ryujinx.Ava
             {
                 MainWindow.DeferLoadApplication(options.LaunchPath, options.LaunchApplicationId, options.StartFullscreen);
             }
+
+            return Result.Success;
         }
 
         public static string GetDirGameUserConfig(string gameId, bool changeFolderForGame = false)

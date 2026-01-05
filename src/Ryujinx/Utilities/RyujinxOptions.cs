@@ -23,7 +23,8 @@ namespace Ryujinx.Ava.Utilities
         {
             InputArguments = args;
 
-            { // Docked Mode Override
+            {
+                // Docked Mode Override
                 if (DockedMode && HandheldMode)
                 {
                     return Result.MessageFailure(
@@ -33,7 +34,8 @@ namespace Ryujinx.Ava.Utilities
                 if (DockedMode) DockedModeOverride = true;
                 if (HandheldMode) DockedModeOverride = false;
             }
-            { // Hardware Acceleration Override
+            {
+                // Hardware Acceleration Override
                 if (SoftwareGui)
                 {
                     HardwareAccelerationOverride = false;
@@ -57,10 +59,12 @@ namespace Ryujinx.Ava.Utilities
             return Result.Success;
         }
 
-        [Option("docked-mode", Required = false, Default = false, HelpText = "Launch the game in Docked mode.")]
+        [Option("docked-mode", Required = false, Default = false,
+            HelpText = "Launch the game in Docked mode. Causes an error if used in tandem with --handheld-mode.")]
         public bool DockedMode { get; set; }
 
-        [Option("handheld-mode", Required = false, Default = false, HelpText = "Launch the game in Handheld mode.")]
+        [Option("handheld-mode", Required = false, Default = false,
+            HelpText = "Launch the game in Handheld mode. Causes an error if used in tandem with --docked-mode.")]
         public bool HandheldMode { get; set; }
 
         [Option("software-gui", Required = false, Default = false,
@@ -108,19 +112,33 @@ namespace Ryujinx.Ava.Utilities
             Default = "{EmuVersion}\n{GuestName} {GuestVersion} {GuestTitleId} {GuestArch}")]
         public string RenderDocCaptureTitleFormat { get; set; }
 
-        [Option("install-firmware", Required = false, Default = null, HelpText = "Specify a file path containing Switch firmware to install immediately after starting. Must be a directory or a .zip or .xci file.")]
+        [Option("install-firmware", Required = false, Default = null,
+            HelpText =
+                "Specify a file path containing Switch firmware to install immediately after starting. Must be a directory or a .zip or .xci file.")]
         public string FirmwareToInstallPathRaw { get; set; }
 
-        [Option('p', "profile", Required = false, Default = null, HelpText = "The profile name to open the application with. Defaults to your last used profile.")]
+        [Option('p', "profile", Required = false, Default = null,
+            HelpText = "The profile name to open the application with. Defaults to your last used profile.")]
         public string Profile { get; set; }
-        [Option('i', "application-id", Required = false, Default = null, HelpText = "Specify which application ID out of the specified content archive path to launch.")]
+
+        [Option('i', "application-id", Required = false, Default = null,
+            HelpText = "Specify which application ID out of the specified content archive path to launch.")]
         public string LaunchApplicationId { get; set; }
-        [Option('f', "fullscreen", Required = false, Default = false, HelpText = "Start the emulator in fullscreen mode.")]
+
+        [Option('f', "fullscreen", Required = false, Default = false,
+            HelpText = "Start the emulator in fullscreen mode.")]
         public bool StartFullscreen { get; set; }
+
         [Option("hide-updates", Required = false, Default = false, HelpText = "Hides update prompt/notification.")]
         public bool HideAvailableUpdates { get; set; }
-        [Option("local-only-amiibo", Required = false, Default = false, HelpText = "Only use the local Amiibo cache; do not update it even if there is an update.")]
+
+        [Option("local-only-amiibo", Required = false, Default = false,
+            HelpText = "Only use the local Amiibo cache; do not update it even if there is an update.")]
         public bool OnlyLocalAmiibo { get; set; }
+
+        [Option("core-dumps", Required = false, Default = false,
+            HelpText = "Enable coredumps on Linux platforms. They are disabled by default.")]
+        public bool CoreDumpsEnabled { get; set; }
 
         [Value(0, Default = null, Required = false,
             HelpText =

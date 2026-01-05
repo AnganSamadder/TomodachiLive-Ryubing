@@ -12,6 +12,7 @@ namespace Ryujinx.Ava.Utilities
     {
         public static RyujinxOptions Shared { get; private set; }
 
+        // ReSharper disable once UnusedMethodReturnValue.Global
         public static Result Read(string[] args, out RyujinxOptions options)
         {
             options = null;
@@ -20,20 +21,8 @@ namespace Ryujinx.Ava.Utilities
             ParserResult<RyujinxOptions> parseResult =
                 Parser.ParseArguments<RyujinxOptions>(args);
 
-            if (parseResult is NotParsed<RyujinxOptions> notParsed)
-            {
-                if (notParsed.Errors.None(x =>
-                        x.Tag is ErrorType.HelpRequestedError or ErrorType.HelpVerbRequestedError))
-                {
-                    Logger.Notice.Print(LogClass.Application, "Failed to parse command-line arguments:");
-                    foreach (var error in notParsed.Errors)
-                    {
-                        Logger.Notice.Print(LogClass.Application, $"    - {error.Tag}");
-                    }
-                }
-
+            if (parseResult is NotParsed<RyujinxOptions>)
                 return Result.Fail;
-            }
 
             options = Shared = parseResult.Value;
 
