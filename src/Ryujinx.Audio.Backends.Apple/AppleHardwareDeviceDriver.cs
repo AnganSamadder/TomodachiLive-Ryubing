@@ -15,7 +15,7 @@ namespace Ryujinx.Audio.Backends.Apple
 {
     [SupportedOSPlatform("macos")]
     [SupportedOSPlatform("ios")]
-    public class AppleHardwareDeviceDriver : IHardwareDeviceDriver
+    public sealed class AppleHardwareDeviceDriver : IHardwareDeviceDriver
     {
         private readonly ManualResetEvent _updateRequiredEvent;
         private readonly ManualResetEvent _pauseEvent;
@@ -38,9 +38,10 @@ namespace Ryujinx.Audio.Backends.Apple
         private bool TestSurroundSupport()
         {
             try
-            {   
-                var format = GetAudioFormat(SampleFormat.PcmFloat, Constants.TargetSampleRate, 6);
-                
+            {
+                AudioStreamBasicDescription format =
+                    GetAudioFormat(SampleFormat.PcmFloat, Constants.TargetSampleRate, 6);
+
                 int result = AudioQueueNewOutput(
                     ref format,
                     IntPtr.Zero,
@@ -60,9 +61,9 @@ namespace Ryujinx.Audio.Backends.Apple
                     };
 
                     int layoutResult = AudioQueueSetProperty(
-                        testQueue, 
-                        kAudioQueueProperty_ChannelLayout, 
-                        ref layout, 
+                        testQueue,
+                        kAudioQueueProperty_ChannelLayout,
+                        ref layout,
                         (uint)Marshal.SizeOf<AudioChannelLayout>());
 
                     if (layoutResult == 0)
@@ -70,7 +71,7 @@ namespace Ryujinx.Audio.Backends.Apple
                         AudioQueueDispose(testQueue, true);
                         return true;
                     }
-                    
+
                     AudioQueueDispose(testQueue, true);
                 }
 
@@ -90,7 +91,8 @@ namespace Ryujinx.Audio.Backends.Apple
 
             try
             {
-                var format = GetAudioFormat(SampleFormat.PcmInt16, Constants.TargetSampleRate, 2);
+                AudioStreamBasicDescription format =
+                    GetAudioFormat(SampleFormat.PcmInt16, Constants.TargetSampleRate, 2);
                 int result = AudioQueueNewOutput(
                     ref format,
                     IntPtr.Zero,
@@ -115,16 +117,13 @@ namespace Ryujinx.Audio.Backends.Apple
         }
 
         public ManualResetEvent GetUpdateRequiredEvent()
-        {
-            return _updateRequiredEvent;
-        }
+            => _updateRequiredEvent;
 
         public ManualResetEvent GetPauseEvent()
-        {
-            return _pauseEvent;
-        }
+            => _pauseEvent;
 
-        public IHardwareDeviceSession OpenDeviceSession(Direction direction, IVirtualMemoryManager memoryManager, SampleFormat sampleFormat, uint sampleRate, uint channelCount)
+        public IHardwareDeviceSession OpenDeviceSession(Direction direction, IVirtualMemoryManager memoryManager,
+            SampleFormat sampleFormat, uint sampleRate, uint channelCount)
         {
             if (channelCount == 0)
             {
@@ -149,11 +148,10 @@ namespace Ryujinx.Audio.Backends.Apple
         }
 
         internal bool Unregister(AppleHardwareDeviceSession session)
-        {
-            return _sessions.TryRemove(session, out _);
-        }
+            => _sessions.TryRemove(session, out _);
 
-        internal static AudioStreamBasicDescription GetAudioFormat(SampleFormat sampleFormat, uint sampleRate, uint channelCount)
+        internal static AudioStreamBasicDescription GetAudioFormat(SampleFormat sampleFormat, uint sampleRate,
+            uint channelCount)
         {
             uint formatFlags;
             uint bitsPerChannel;
@@ -202,7 +200,7 @@ namespace Ryujinx.Audio.Backends.Apple
             Dispose(true);
         }
 
-        protected virtual void Dispose(bool disposing)
+        private void Dispose(bool disposing)
         {
             if (disposing)
             {
@@ -215,29 +213,15 @@ namespace Ryujinx.Audio.Backends.Apple
             }
         }
 
-        public bool SupportsSampleRate(uint sampleRate)
-        {
-            return true;
-        }
+        public bool SupportsDirection(Direction direction)
+            => direction != Direction.Input;
+
+        public bool SupportsSampleRate(uint sampleRate) => true;
 
         public bool SupportsSampleFormat(SampleFormat sampleFormat)
-        {
-            return sampleFormat != SampleFormat.PcmInt24;
-        }
+            => sampleFormat != SampleFormat.PcmInt24;
 
         public bool SupportsChannelCount(uint channelCount)
-        {
-            if (channelCount == 6)
-            {
-                return _supportSurroundConfiguration;
-            }
-
-            return true;
-        }
-
-        public bool SupportsDirection(Direction direction)
-        {
-            return direction != Direction.Input;
-        }
+            => channelCount != 6 || _supportSurroundConfiguration;
     }
 }
