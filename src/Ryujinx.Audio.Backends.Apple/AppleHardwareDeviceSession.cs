@@ -215,7 +215,7 @@ namespace Ryujinx.Audio.Backends.Apple
         public override void QueueBuffer(AudioBuffer buffer)
         {
             _ringBuffer.Write(buffer.Data, 0, buffer.Data.Length);
-            _queuedBuffers.Enqueue(new AppleAudioBuffer(buffer.HostTag, GetSampleCount(buffer)));
+            _queuedBuffers.Enqueue(new AppleAudioBuffer(buffer.DataPointer, GetSampleCount(buffer)));
         }
 
         public override void Start()
@@ -253,7 +253,7 @@ namespace Ryujinx.Audio.Backends.Apple
             if (!_queuedBuffers.TryPeek(out AppleAudioBuffer driverBuffer))
                 return true;
 
-            return driverBuffer.DriverIdentifier != buffer.HostTag;
+            return driverBuffer.DriverIdentifier != buffer.DataPointer;
         }
 
         public override void PrepareToClose() { }

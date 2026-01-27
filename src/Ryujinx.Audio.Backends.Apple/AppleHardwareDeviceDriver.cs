@@ -86,6 +86,8 @@ namespace Ryujinx.Audio.Backends.Apple
 
         private static bool IsSupportedInternal()
         {
+            if (!OperatingSystem.IsMacOS()) return false;
+
             try
             {
                 var format = GetAudioFormat(SampleFormat.PcmInt16, Constants.TargetSampleRate, 2);
