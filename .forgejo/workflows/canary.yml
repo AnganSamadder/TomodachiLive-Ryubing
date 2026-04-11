@@ -136,7 +136,7 @@ jobs:
         uses: actions/create-release@v1
         with:
           name: "Canary ${{ steps.version_info.outputs.build_version }}"
-          repository: "Ryubing/canary-test"
+          repository: "Ryubing/Canary"
           token: ${{ secrets.RELEASER_TOKEN  }}
           tag_name: ${{ steps.version_info.outputs.build_version }}
           files: |-
@@ -198,7 +198,7 @@ jobs:
         uses: actions/create-release@v1
         with:
           name: "Canary ${{ steps.version_info.outputs.build_version }}"
-          repository: "Ryubing/canary-test"
+          repository: "Ryubing/Canary"
           token: ${{ secrets.RELEASER_TOKEN  }}
           tag_name: ${{ steps.version_info.outputs.build_version }}
           files: |-
