@@ -60,7 +60,7 @@ jobs:
           echo "build_version=$(gli get-next-version -c Canary -R)" >> $FORGEJO_OUTPUT
           echo "prev_build_version=$(gli get-current-version -c Canary -R)" >> $FORGEJO_OUTPUT
           echo "git_short_hash=$(git rev-parse --short "${{ forgejo.sha }}")" >> $FORGEJO_OUTPUT
-          shell: bash
+        shell: bash
 
       - name: Configure for release
         run: |
