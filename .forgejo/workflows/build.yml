@@ -218,7 +218,7 @@ jobs:
             });
 
             const {owner, repo} = context.repo;
-            const run_id = ${{ forgejo.run_id }};
+            const run_id = ${{ forgejo.run_number }};
             const pull_head_sha = '${{ forgejo.event.workflow_run.head_sha }}';
 
             const issue_number = ${{ forgejo.event.pull_request.number }};
