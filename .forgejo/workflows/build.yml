@@ -221,11 +221,11 @@ jobs:
             const run_id = ${{ env.FORGEJO_RUN_ID }};
 
             const issue_number = ${{ forgejo.event.pull_request.number }};
-            core.info(`Using pull request ${issue_number}`);
+            core.info(`Using run ID ${run_id} from pull request ${issue_number}`);
 
             const {data: {artifacts}} = await forgejo.rest.actions.listWorkflowRunArtifacts({owner, repo, run_id});
             if (artifacts == undefined || !artifacts.length) {
-              return core.error(`No artifacts found`);
+              return core.error(`No artifacts found for run ID`);
             }
             let body = `Download the artifacts for this pull request:\n`;
             for (const art of artifacts) {
