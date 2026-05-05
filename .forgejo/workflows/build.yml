@@ -225,7 +225,7 @@ jobs:
             core.info(`Using pull request ${issue_number}`);
 
             const {data: {artifacts}} = await forgejo.rest.actions.listWorkflowRunArtifacts({owner, repo, run_id});
-            if (!artifacts.length) {
+            if (artifacts == undefined || !artifacts.length) {
               return core.error(`No artifacts found`);
             }
             let body = `Download the artifacts for this pull request:\n`;
