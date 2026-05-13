@@ -31,28 +31,15 @@ jobs:
     strategy:
       matrix:
         platform:
-          - { name: win-x64,     os: ghcr.io/catthehacker/ubuntu:act-latest, zip_os_name: win_x64     }
-          #- { name: win-arm64,   os: ghcr.io/catthehacker/ubuntu:act-latest, zip_os_name: win_arm64   }
-          - { name: linux-x64,   os: ghcr.io/catthehacker/ubuntu:act-latest,  zip_os_name: linux_x64   }
-          - { name: linux-arm64, os: ghcr.io/catthehacker/ubuntu:act-latest,  zip_os_name: linux_arm64 }
+          - { name: win-x64,     os: ghcr.io/gruke-build/ubuntu:dotnet-latest, zip_os_name: win_x64      }
+          #- { name: win-arm64,   os: ghcr.io/gruke-build/ubuntu:dotnet-latest, zip_os_name: win_arm64    }
+          - { name: linux-x64,   os: ghcr.io/gruke-build/ubuntu:dotnet-latest,  zip_os_name: linux_x64   }
+          - { name: linux-arm64, os: ghcr.io/gruke-build/ubuntu:dotnet-latest,  zip_os_name: linux_arm64 }
     steps:
       - uses: actions/checkout@v6
 
-      - uses: actions/setup-dotnet@v5
-        with:
-          global-json-file: global.json
-
       - name: Overwrite csc problem matcher
         run: echo "::add-matcher::.forgejo/csc.json"
-
-      - name: Install GLI
-        uses: actions/setup-gli@v1
-        with:
-          token: ${{ secrets.SETUP_GLI_TOKEN }}
-
-      - name: Install 7zip
-        run: |
-          sudo apt update && sudo apt install -y 7zip
 
       - name: Get version info
         id: version_info
@@ -105,14 +92,6 @@ jobs:
           BUILD_VERSION="${{ steps.version_info.outputs.build_version }}"
           PLATFORM_NAME="${{ matrix.platform.name }}"
 
-          sudo apt update && sudo apt install -y zsync desktop-file-utils appstream libfuse2t64
-
-          mkdir -p tools
-          export PATH="$PATH:$(readlink -f tools)"
-
-          # Setup appimagetool
-          wget -q -O tools/appimagetool "https://github.com/AppImage/appimagetool/releases/download/continuous/appimagetool-x86_64.AppImage"
-          chmod +x tools/appimagetool
           chmod +x distribution/linux/appimage/build-appimage.sh
 
           # Explicitly set $ARCH for appimagetool ($ARCH_NAME is for the file name)
@@ -149,24 +128,15 @@ jobs:
     name: Release MacOS universal
     runs-on: docker
     container:
-      image: ghcr.io/catthehacker/ubuntu:act-latest
+      image: ghcr.io/gruke-build/ubuntu:dotnet-latest
     steps:
       - uses: actions/checkout@v6
-
-      - uses: actions/setup-dotnet@v5
-        with:
-          global-json-file: global.json
 
       - name: Setup LLVM 17
         run: |
           wget https://apt.llvm.org/llvm.sh
           chmod +x llvm.sh
           sudo ./llvm.sh 17
-          
-      - name: Install GLI
-        uses: actions/setup-gli@v1
-        with:
-          token: ${{ secrets.SETUP_GLI_TOKEN }}
 
       - name: Install rcodesign
         run: |
@@ -212,18 +182,11 @@ jobs:
     name: Post CI Steps
     runs-on: docker
     container:
-      image: ghcr.io/catthehacker/ubuntu:act-latest
+      image: ghcr.io/gruke-build/ubuntu:act-latest
     needs: 
       - macos_release
       - release
     steps:
-      - uses: actions/checkout@v6
-        
-      - name: Install GLI
-        uses: actions/setup-gli@v1
-        with:
-          token: ${{ secrets.SETUP_GLI_TOKEN }}
-      
       - name: Get version info
         id: version_info
         run: |
