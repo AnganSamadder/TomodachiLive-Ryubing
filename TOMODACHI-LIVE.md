@@ -1,6 +1,6 @@
 # TomodachiLive Integration Notes
 
-This branch is Rio's TomodachiLive integration branch for Ryubing.
+This branch is a milestone branch for Rio's TomodachiLive integration work on Ryubing.
 
 ## Source baseline
 
@@ -22,6 +22,15 @@ TomodachiLive clients
   -> local IPC / named pipe
   -> Ryubing input provider
 ```
+
+## Branch and PR workflow
+
+- GitHub default branch is `main`; do not use `master` for this fork.
+- Implement TomodachiLive emulator work as milestone branches.
+- Merge changes into `main` through detailed, professional PRs.
+- PRs must include summary, motivation, architecture notes, risk, test plan, and rollback notes when relevant.
+- Commits must be small logical changes and use Conventional Commits.
+- Avoid huge feature-blob commits; split docs, protocol, scaffolding, tests, implementation, and verification into separate commits.
 
 ## Rules
 
