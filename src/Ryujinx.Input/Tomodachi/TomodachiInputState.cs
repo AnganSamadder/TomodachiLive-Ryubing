@@ -60,6 +60,8 @@ namespace Ryujinx.Input.Tomodachi
         int QueueCapacity,
         int CommandResultCount,
         int CommandResultCapacity,
+        int StopResultCount,
+        int StopResultCapacity,
         long LastAcceptedSequence,
         long ProviderPoll,
         long NeutralGeneration);
@@ -80,9 +82,11 @@ namespace Ryujinx.Input.Tomodachi
         private readonly Queue<string> _commandReceiptOrder = new();
         private readonly Dictionary<string, bool> _pendingCommandStates = new(StringComparer.Ordinal);
         private readonly Dictionary<string, NeutralizeResult> _stopResults = new(StringComparer.Ordinal);
+        private readonly Queue<string> _stopResultOrder = new();
         private readonly TimeProvider _timeProvider;
         private readonly int _maxPendingTransitions;
         private readonly int _maxCommandResults;
+        private readonly int _maxStopResults;
         private readonly TimeSpan _watchdogTimeout;
 
         private TomodachiAuthorityEpoch _authority;
@@ -104,13 +108,16 @@ namespace Ryujinx.Input.Tomodachi
             TimeProvider timeProvider = null,
             int maxPendingTransitions = 64,
             int maxCommandResults = 1024,
+            int maxStopResults = 256,
             TimeSpan? watchdogTimeout = null)
         {
             ArgumentOutOfRangeException.ThrowIfLessThan(maxPendingTransitions, 1);
             ArgumentOutOfRangeException.ThrowIfLessThan(maxCommandResults, maxPendingTransitions);
+            ArgumentOutOfRangeException.ThrowIfLessThan(maxStopResults, 1);
             _timeProvider = timeProvider ?? TimeProvider.System;
             _maxPendingTransitions = maxPendingTransitions;
             _maxCommandResults = maxCommandResults;
+            _maxStopResults = maxStopResults;
             _watchdogTimeout = watchdogTimeout ?? TimeSpan.FromSeconds(2);
             if (_watchdogTimeout <= TimeSpan.Zero)
             {
@@ -190,6 +197,16 @@ namespace Ryujinx.Input.Tomodachi
         {
             lock (_lock)
             {
+                if (string.IsNullOrWhiteSpace(stopId))
+                {
+                    return new NeutralizeResult(
+                        Latched: _latched,
+                        Duplicate: false,
+                        NeutralGeneration: _neutralGeneration,
+                        AllNeutralSampled: false,
+                        Detail: "invalid-stop-id");
+                }
+
                 if (_stopResults.TryGetValue(stopId, out NeutralizeResult previous))
                 {
                     return previous with { Duplicate = true };
@@ -202,7 +219,7 @@ namespace Ryujinx.Input.Tomodachi
                     NeutralGeneration: _neutralGeneration,
                     AllNeutralSampled: false,
                     Detail: reason.ToString());
-                _stopResults.Add(stopId, result);
+                StoreStopResult(stopId, result);
                 return result;
             }
         }
@@ -331,6 +348,8 @@ namespace Ryujinx.Input.Tomodachi
                     QueueCapacity: _maxPendingTransitions,
                     CommandResultCount: _commandReceipts.Count,
                     CommandResultCapacity: _maxCommandResults,
+                    StopResultCount: _stopResults.Count,
+                    StopResultCapacity: _maxStopResults,
                     LastAcceptedSequence: _lastAcceptedSequence,
                     ProviderPoll: _providerPoll,
                     NeutralGeneration: _neutralGeneration);
@@ -391,6 +410,11 @@ namespace Ryujinx.Input.Tomodachi
         {
             lock (_lock)
             {
+                if (_disposed)
+                {
+                    return;
+                }
+
                 _visibleA = false;
                 _desiredA = false;
                 _transitions.Clear();
@@ -489,12 +513,50 @@ namespace Ryujinx.Input.Tomodachi
             }
         }
 
+        private void StoreStopResult(string stopId, NeutralizeResult result)
+        {
+            TrimCompletedStopResults(_maxStopResults - 1);
+            while (_stopResults.Count >= _maxStopResults && _stopResultOrder.TryDequeue(out string oldestStopId))
+            {
+                if (_stopResults.Remove(oldestStopId))
+                {
+                    break;
+                }
+            }
+
+            _stopResults.Add(stopId, result);
+            _stopResultOrder.Enqueue(stopId);
+        }
+
+        private void TrimCompletedStopResults(int targetCount)
+        {
+            int remainingToInspect = _stopResultOrder.Count;
+            while (_stopResults.Count > targetCount &&
+                   remainingToInspect-- > 0 &&
+                   _stopResultOrder.TryDequeue(out string stopId))
+            {
+                if (!_stopResults.TryGetValue(stopId, out NeutralizeResult result))
+                {
+                    continue;
+                }
+
+                if (result.AllNeutralSampled)
+                {
+                    _stopResults.Remove(stopId);
+                }
+                else
+                {
+                    _stopResultOrder.Enqueue(stopId);
+                }
+            }
+        }
+
         private void CompleteNeutralReceipts(long neutralGeneration)
         {
             List<string> stopIds = [];
             foreach (KeyValuePair<string, NeutralizeResult> entry in _stopResults)
             {
-                if (entry.Value.NeutralGeneration == neutralGeneration)
+                if (entry.Value.NeutralGeneration <= neutralGeneration && !entry.Value.AllNeutralSampled)
                 {
                     stopIds.Add(entry.Key);
                 }

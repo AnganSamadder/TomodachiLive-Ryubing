@@ -296,24 +296,33 @@ namespace Ryujinx.Input.Tests.Tomodachi
         [Test]
         public void AllNeutralReceiptCompletesOnlyAfterPostStopPoll()
         {
-            using TomodachiInputState state = new();
+            using TomodachiInputState state = new(maxStopResults: 2);
             state.Arm("arm-1", Authority);
             state.Apply(Command("press-1", 1, TomodachiButtonAction.Press));
             state.PollMappedSnapshot();
 
             NeutralizeResult immediate = state.NeutralizeAndLatch("stop-1", NeutralizeReason.OwnerStop);
             NeutralizeResult beforePoll = state.NeutralizeAndLatch("stop-1", NeutralizeReason.OwnerStop);
+            NeutralizeResult secondStop = state.NeutralizeAndLatch("stop-2", NeutralizeReason.ProtocolFailure);
             PollResult poll = state.PollMappedSnapshot();
             NeutralizeResult afterPoll = state.NeutralizeAndLatch("stop-1", NeutralizeReason.OwnerStop);
+            NeutralizeResult secondAfterPoll = state.NeutralizeAndLatch("stop-2", NeutralizeReason.ProtocolFailure);
+            state.NeutralizeAndLatch("stop-3", NeutralizeReason.Disconnected);
+            ProviderHealth boundedHealth = state.GetHealth();
 
             Assert.Multiple(() =>
             {
                 Assert.That(immediate.AllNeutralSampled, Is.False);
                 Assert.That(beforePoll.AllNeutralSampled, Is.False);
+                Assert.That(secondStop.AllNeutralSampled, Is.False);
                 Assert.That(poll.AllNeutralSampled, Is.True);
                 Assert.That(afterPoll.Duplicate, Is.True);
                 Assert.That(afterPoll.AllNeutralSampled, Is.True);
-                Assert.That(afterPoll.NeutralGeneration, Is.EqualTo(poll.NeutralGeneration));
+                Assert.That(secondAfterPoll.AllNeutralSampled, Is.True);
+                Assert.That(afterPoll.NeutralGeneration, Is.LessThan(poll.NeutralGeneration));
+                Assert.That(secondAfterPoll.NeutralGeneration, Is.EqualTo(poll.NeutralGeneration));
+                Assert.That(boundedHealth.StopResultCount, Is.EqualTo(2));
+                Assert.That(boundedHealth.StopResultCapacity, Is.EqualTo(2));
             });
         }
 
