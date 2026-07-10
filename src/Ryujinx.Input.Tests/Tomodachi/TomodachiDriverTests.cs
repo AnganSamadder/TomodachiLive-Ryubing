@@ -145,6 +145,9 @@ namespace Ryujinx.Input.Tests.Tomodachi
             CompositeGamepadDriver composite = new(primary, new TomodachiGamepadDriver(driverState));
             composite.Dispose();
             composite.Dispose();
+            ProviderHealth disposedHealth = driverState.GetHealth();
+            driverState.Clear();
+            ProviderHealth afterClear = driverState.GetHealth();
 
             Assert.Multiple(() =>
             {
@@ -155,6 +158,7 @@ namespace Ryujinx.Input.Tests.Tomodachi
                 Assert.That(primary.DisposeCount, Is.EqualTo(1));
                 Assert.That(driverState.GetHealth().Disposed, Is.True);
                 Assert.That(driverState.GetHealth().AllNeutral, Is.True);
+                Assert.That(afterClear.NeutralGeneration, Is.EqualTo(disposedHealth.NeutralGeneration));
             });
             driverState.Dispose();
         }

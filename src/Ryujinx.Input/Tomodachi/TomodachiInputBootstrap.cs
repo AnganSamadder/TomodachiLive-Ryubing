@@ -15,6 +15,7 @@ namespace Ryujinx.Input.Tomodachi
             TimeProvider timeProvider = null,
             int maxPendingTransitions = 64,
             int maxCommandResults = 1024,
+            int maxStopResults = 256,
             TimeSpan? watchdogTimeout = null)
         {
             ArgumentNullException.ThrowIfNull(primaryDriver);
@@ -24,7 +25,12 @@ namespace Ryujinx.Input.Tomodachi
                 return new TomodachiInputBootstrapResult(primaryDriver, null);
             }
 
-            TomodachiInputState state = new(timeProvider, maxPendingTransitions, maxCommandResults, watchdogTimeout);
+            TomodachiInputState state = new(
+                timeProvider,
+                maxPendingTransitions,
+                maxCommandResults,
+                maxStopResults,
+                watchdogTimeout);
             try
             {
                 TomodachiGamepadDriver virtualDriver = new(state);
