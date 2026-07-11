@@ -21,6 +21,7 @@ namespace Ryujinx.Input.Tomodachi
         ProtocolFailure,
         ProviderDisposal,
         ProviderDisabled,
+        FocusClear,
         Rearmed,
     }
 
@@ -47,6 +48,12 @@ namespace Ryujinx.Input.Tomodachi
         bool Duplicate,
         CommandReceipt Receipt);
 
+    public readonly record struct NeutralSampleReceipt(
+        long NeutralGeneration,
+        long ProviderPoll,
+        DateTimeOffset SampledAt,
+        bool AllNeutral);
+
     public readonly record struct ProviderHealth(
         bool Enabled,
         bool Armed,
@@ -72,7 +79,9 @@ namespace Ryujinx.Input.Tomodachi
         bool AllNeutral,
         long NeutralGeneration,
         DateTimeOffset SampledAt,
-        bool AllNeutralSampled);
+        bool AllNeutralSampled,
+        CommandReceipt[] SampledCommandReceipts,
+        NeutralSampleReceipt? AllNeutralReceipt);
 
     public sealed class TomodachiInputState : ITomodachiInputControl, ITomodachiInputPollSource, IDisposable
     {
@@ -81,6 +90,7 @@ namespace Ryujinx.Input.Tomodachi
         private readonly Dictionary<string, CommandReceipt> _commandReceipts = new(StringComparer.Ordinal);
         private readonly Queue<string> _commandReceiptOrder = new();
         private readonly Dictionary<string, bool> _pendingCommandStates = new(StringComparer.Ordinal);
+        private readonly Dictionary<TomodachiAuthorityEpoch, long> _authoritySequenceFloors = new();
         private readonly Dictionary<string, NeutralizeResult> _stopResults = new(StringComparer.Ordinal);
         private readonly Queue<string> _stopResultOrder = new();
         private readonly TimeProvider _timeProvider;
@@ -103,6 +113,7 @@ namespace Ryujinx.Input.Tomodachi
         private long _providerPoll;
         private long _neutralGeneration;
         private long _lastNeutralSampledGeneration;
+        private NeutralSampleReceipt? _lastAllNeutralSampleReceipt;
 
         public TomodachiInputState(
             TimeProvider timeProvider = null,
@@ -175,7 +186,7 @@ namespace Ryujinx.Input.Tomodachi
                 _visibleA = false;
                 _desiredA = false;
                 _transitions.Clear();
-                _lastAcceptedSequence = -1;
+                _lastAcceptedSequence = _authoritySequenceFloors.GetValueOrDefault(authority, -1);
                 _lastHeartbeatAt = _timeProvider.GetUtcNow();
                 _lastPollAt = null;
                 return new ArmResult(true, "armed");
@@ -290,6 +301,7 @@ namespace Ryujinx.Input.Tomodachi
 
                 bool desiredA = command.Action == TomodachiButtonAction.Press;
                 _lastAcceptedSequence = command.Sequence;
+                _authoritySequenceFloors[_authority] = command.Sequence;
 
                 string detail;
                 if (desiredA == _desiredA)
@@ -356,6 +368,22 @@ namespace Ryujinx.Input.Tomodachi
             }
         }
 
+        public bool TryGetCommandReceipt(string commandId, out CommandReceipt receipt)
+        {
+            lock (_lock)
+            {
+                return _commandReceipts.TryGetValue(commandId, out receipt);
+            }
+        }
+
+        public NeutralSampleReceipt? GetLastAllNeutralSampleReceipt()
+        {
+            lock (_lock)
+            {
+                return _lastAllNeutralSampleReceipt;
+            }
+        }
+
         public PollResult PollMappedSnapshot()
         {
             lock (_lock)
@@ -370,15 +398,27 @@ namespace Ryujinx.Input.Tomodachi
                     _visibleA = transition.Pressed;
                 }
 
-                CompleteSampledCommandReceipts(_visibleA, sampledAt);
+                CommandReceipt[] sampledCommandReceipts = CompleteSampledCommandReceipts(_visibleA, sampledAt);
 
                 bool allNeutral = !_visibleA;
+                if (allNeutral && sampledCommandReceipts.Length > 0)
+                {
+                    _neutralGeneration++;
+                }
+
                 bool allNeutralSampled = allNeutral &&
                     _neutralGeneration > 0 &&
                     _neutralGeneration > _lastNeutralSampledGeneration;
+                NeutralSampleReceipt? allNeutralReceipt = null;
                 if (allNeutralSampled)
                 {
                     _lastNeutralSampledGeneration = _neutralGeneration;
+                    allNeutralReceipt = new NeutralSampleReceipt(
+                        _neutralGeneration,
+                        _providerPoll,
+                        sampledAt,
+                        AllNeutral: true);
+                    _lastAllNeutralSampleReceipt = allNeutralReceipt;
                     CompleteNeutralReceipts(_neutralGeneration);
                 }
 
@@ -391,7 +431,9 @@ namespace Ryujinx.Input.Tomodachi
                     AllNeutral: allNeutral,
                     NeutralGeneration: _neutralGeneration,
                     SampledAt: sampledAt,
-                    AllNeutralSampled: allNeutralSampled);
+                    AllNeutralSampled: allNeutralSampled,
+                    SampledCommandReceipts: sampledCommandReceipts,
+                    AllNeutralReceipt: allNeutralReceipt);
             }
         }
 
@@ -419,7 +461,7 @@ namespace Ryujinx.Input.Tomodachi
                 _desiredA = false;
                 _transitions.Clear();
                 _neutralGeneration++;
-                SupersedePendingCommands(NeutralizeReason.ProviderDisabled);
+                SupersedePendingCommands(NeutralizeReason.FocusClear);
             }
         }
 
@@ -437,9 +479,10 @@ namespace Ryujinx.Input.Tomodachi
             }
         }
 
-        private void CompleteSampledCommandReceipts(bool visibleA, DateTimeOffset sampledAt)
+        private CommandReceipt[] CompleteSampledCommandReceipts(bool visibleA, DateTimeOffset sampledAt)
         {
             List<string> sampledCommandIds = [];
+            List<CommandReceipt> sampledReceipts = [];
             foreach (KeyValuePair<string, bool> entry in _pendingCommandStates)
             {
                 if (entry.Value == visibleA)
@@ -452,19 +495,22 @@ namespace Ryujinx.Input.Tomodachi
             {
                 if (_commandReceipts.TryGetValue(commandId, out CommandReceipt receipt))
                 {
-                    _commandReceipts[commandId] = receipt with
+                    CommandReceipt sampledReceipt = receipt with
                     {
                         Sampled = true,
                         ProviderPoll = _providerPoll,
                         SampledAt = sampledAt,
-                        Detail = "sampled",
+                        Detail = "npad-sampled",
                     };
+                    _commandReceipts[commandId] = sampledReceipt;
+                    sampledReceipts.Add(sampledReceipt);
                 }
 
                 _pendingCommandStates.Remove(commandId);
             }
 
             TrimCommandReceipts(_maxCommandResults);
+            return sampledReceipts.ToArray();
         }
 
         private bool EnsureCommandReceiptSlot()

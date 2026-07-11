@@ -107,6 +107,44 @@ namespace Ryujinx.Input.Tests.Tomodachi
         }
 
         [Test]
+        public void NormalReleaseExposesNpadSampledAndAllNeutralReceipts()
+        {
+            using TomodachiInputState state = new();
+            state.Arm("arm-1", Authority);
+            state.Apply(Command("press-1", 1, TomodachiButtonAction.Press));
+            PollResult pressed = state.PollMappedSnapshot();
+            state.Apply(Command("release-2", 2, TomodachiButtonAction.Release));
+
+            PollResult released = state.PollMappedSnapshot();
+            bool foundPress = state.TryGetCommandReceipt("press-1", out CommandReceipt pressReceipt);
+            bool foundRelease = state.TryGetCommandReceipt("release-2", out CommandReceipt releaseReceipt);
+            NeutralSampleReceipt? lastNeutral = state.GetLastAllNeutralSampleReceipt();
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(pressed.SampledCommandReceipts, Has.Length.EqualTo(1));
+                Assert.That(pressed.SampledCommandReceipts[0].CommandId, Is.EqualTo("press-1"));
+                Assert.That(pressed.SampledCommandReceipts[0].Detail, Is.EqualTo("npad-sampled"));
+                Assert.That(foundPress, Is.True);
+                Assert.That(pressReceipt.ProviderPoll, Is.EqualTo(pressed.ProviderPoll));
+                Assert.That(foundRelease, Is.True);
+                Assert.That(releaseReceipt.Sampled, Is.True);
+                Assert.That(releaseReceipt.ProviderPoll, Is.EqualTo(released.ProviderPoll));
+                Assert.That(releaseReceipt.Detail, Is.EqualTo("npad-sampled"));
+                Assert.That(released.SampledCommandReceipts, Has.Length.EqualTo(1));
+                Assert.That(released.SampledCommandReceipts[0], Is.EqualTo(releaseReceipt));
+                Assert.That(released.AllNeutral, Is.True);
+                Assert.That(released.AllNeutralSampled, Is.True);
+                Assert.That(released.AllNeutralReceipt.HasValue, Is.True);
+                Assert.That(released.AllNeutralReceipt.Value.AllNeutral, Is.True);
+                Assert.That(released.AllNeutralReceipt.Value.ProviderPoll, Is.EqualTo(released.ProviderPoll));
+                Assert.That(released.AllNeutralReceipt.Value.SampledAt, Is.EqualTo(released.SampledAt));
+                Assert.That(released.AllNeutralReceipt.Value.NeutralGeneration, Is.GreaterThan(0));
+                Assert.That(lastNeutral, Is.EqualTo(released.AllNeutralReceipt));
+            });
+        }
+
+        [Test]
         public void DuplicateCommandIdReturnsSameReceiptWithoutSecondEdge()
         {
             using TomodachiInputState state = new(maxPendingTransitions: 2, maxCommandResults: 2);
@@ -137,6 +175,37 @@ namespace Ryujinx.Input.Tests.Tomodachi
                 Assert.That(evictedReplay.Accepted, Is.False);
                 Assert.That(evictedReplay.Duplicate, Is.False);
                 Assert.That(evictedReplay.Receipt.Detail, Is.EqualTo("sequence-replay"));
+            });
+        }
+
+        [Test]
+        public void EvictedCommandCannotReplayAfterSameAuthorityRearm()
+        {
+            using TomodachiInputState state = new(maxPendingTransitions: 1, maxCommandResults: 1);
+            TomodachiInputCommand original = Command("press-1", 1, TomodachiButtonAction.Press);
+            state.Arm("arm-1", Authority);
+            state.Apply(original);
+            state.PollMappedSnapshot();
+            state.NeutralizeAndLatch("stop-1", NeutralizeReason.OwnerStop);
+            state.PollMappedSnapshot();
+            state.Arm("arm-2", Authority);
+
+            TomodachiInputCommand expiredEvictor = Command("expired-99", 99, TomodachiButtonAction.Release) with
+            {
+                ExpiresAt = DateTimeOffset.UnixEpoch,
+            };
+            Assert.That(state.Apply(expiredEvictor).Receipt.Detail, Is.EqualTo("expired"));
+
+            ApplyResult replay = state.Apply(original);
+            PollResult poll = state.PollMappedSnapshot();
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(replay.Accepted, Is.False);
+                Assert.That(replay.Duplicate, Is.False);
+                Assert.That(replay.Receipt.Detail, Is.EqualTo("sequence-replay"));
+                Assert.That(poll.AllNeutral, Is.True);
+                Assert.That(state.GetHealth().LastAcceptedSequence, Is.EqualTo(1));
             });
         }
 
@@ -289,7 +358,7 @@ namespace Ryujinx.Input.Tests.Tomodachi
                 Assert.That(rejected.Receipt.Detail, Is.EqualTo("latched"));
                 Assert.That(state.Arm("arm-1", Authority).Armed, Is.False);
                 Assert.That(state.Arm("arm-2", Authority).Armed, Is.True);
-                Assert.That(state.Apply(Command("press-4", 1, TomodachiButtonAction.Press)).Accepted, Is.True);
+                Assert.That(state.Apply(Command("press-4", 3, TomodachiButtonAction.Press)).Accepted, Is.True);
             });
         }
 

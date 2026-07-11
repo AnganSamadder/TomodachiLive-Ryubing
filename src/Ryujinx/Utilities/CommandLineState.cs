@@ -29,6 +29,7 @@ namespace Ryujinx.Ava.Utilities
         public static bool StartFullscreenArg { get; private set; }
         public static bool HideAvailableUpdates { get; private set; }
         public static bool OnlyLocalAmiibo { get; private set; }
+        public static bool EnableTomodachiInputProvider { get; private set; }
 
         public static void ParseArguments(string[] args)
         {
@@ -208,6 +209,10 @@ namespace Ryujinx.Ava.Utilities
                         break;
                     case "--software-gui":
                         OverrideHardwareAcceleration = false;
+                        break;
+                    case "--enable-tomodachi-input-provider":
+                        EnableTomodachiInputProvider = true;
+                        arguments.Add(arg);
                         break;
                     default:
                         LaunchPathArg = arg;

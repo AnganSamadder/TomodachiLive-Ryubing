@@ -31,14 +31,24 @@ namespace Ryujinx.Input.Tests.Tomodachi
                 TomodachiButtonAction.Press,
                 "trace-1"));
             state.PollMappedSnapshot();
+            state.Apply(new TomodachiInputCommand(
+                "release-2",
+                Authority,
+                2,
+                DateTimeOffset.MaxValue,
+                GamepadButtonInputId.A,
+                TomodachiButtonAction.Release,
+                "trace-2"));
             using TomodachiGamepadDriver virtualDriver = new(state);
             using CompositeGamepadDriver composite = new(primary, virtualDriver);
 
             composite.Clear();
+            Assert.That(state.TryGetCommandReceipt("release-2", out CommandReceipt releaseReceipt), Is.True);
 
             Assert.Multiple(() =>
             {
                 Assert.That(primary.ClearCount, Is.EqualTo(1));
+                Assert.That(releaseReceipt.Detail, Is.EqualTo("superseded-by-focusclear"));
                 Assert.That(state.GetHealth().AllNeutral, Is.True);
                 Assert.That(state.GetHealth().Armed, Is.True);
                 Assert.That(state.GetHealth().Latched, Is.False);

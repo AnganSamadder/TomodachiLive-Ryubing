@@ -30,6 +30,7 @@ using Ryujinx.HLE.HOS;
 using Ryujinx.HLE.HOS.Services.Account.Acc;
 using Ryujinx.Input.HLE;
 using Ryujinx.Input.SDL3;
+using Ryujinx.Input.Tomodachi;
 using Ryujinx.Input;
 using System;
 using System.Collections.Generic;
@@ -66,6 +67,7 @@ namespace Ryujinx.Ava.UI.Windows
         public LibHacHorizonManager LibHacHorizonManager { get; private set; }
 
         public InputManager InputManager { get; private set; }
+        internal ITomodachiInputControl TomodachiInputControl { get; private set; }
 
         public SettingsWindow SettingsWindow { get; set; }
 
@@ -110,7 +112,11 @@ namespace Ryujinx.Ava.UI.Windows
             {
                 AvaloniaKeyboardDriver keyboardDriver = new(this, KeyboardInputMode.Semantic);
                 keyboardDriver.KeyPressed += PhysicalKeyLabelHelper.ObserveKeyPress;
-                InputManager = new InputManager(keyboardDriver, new SDL3GamepadDriver());
+                TomodachiInputBootstrapResult bootstrap = TomodachiInputBootstrap.CreateGamepadDriver(
+                    new SDL3GamepadDriver(),
+                    CommandLineState.EnableTomodachiInputProvider);
+                InputManager = new InputManager(keyboardDriver, bootstrap.GamepadDriver);
+                TomodachiInputControl = bootstrap.InputControl;
 
                 _ = this.GetObservable(IsActiveProperty).Subscribe(it => ViewModel.IsActive = it);
                 this.ScalingChanged += OnScalingChanged;
