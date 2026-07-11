@@ -43,6 +43,7 @@ namespace Ryujinx.Headless
         private static UserChannelPersistence _userChannelPersistence;
         private static InputManager _inputManager;
         private static ITomodachiInputControl _tomodachiInputControl;
+        private static IDisposable _tomodachiIpcLifetime;
         private static Switch _emulationContext;
         private static WindowBase _window;
         private static WindowsMultimediaTimerResolution _windowsMultimediaTimerResolution;
@@ -188,6 +189,11 @@ namespace Ryujinx.Headless
                 option.EnableTomodachiInputProvider);
             _inputManager = new InputManager(new SDL3KeyboardDriver(), bootstrap.GamepadDriver);
             _tomodachiInputControl = bootstrap.InputControl;
+            _tomodachiIpcLifetime = bootstrap.IpcLifetime;
+            if (option.EnableTomodachiInputProvider)
+            {
+                Logger.Info?.PrintMsg(LogClass.Application, $"Tomodachi IPC status: {bootstrap.IpcStatus}");
+            }
 
             GraphicsConfig.EnableShaderCache = !option.DisableShaderCache;
 
@@ -222,6 +228,7 @@ namespace Ryujinx.Headless
                     gamepad.Dispose();
                 }
 
+                DisposeInput();
                 return;
             }
 
@@ -229,6 +236,7 @@ namespace Ryujinx.Headless
             {
                 Logger.Error?.Print(LogClass.Application, "Please provide a file to load");
 
+                DisposeInput();
                 return;
             }
 
@@ -248,6 +256,7 @@ namespace Ryujinx.Headless
 
             if (_inputConfiguration.Count == 0)
             {
+                DisposeInput();
                 return;
             }
 
@@ -311,11 +320,7 @@ namespace Ryujinx.Headless
                 _userChannelPersistence.ShouldRestart = false;
             }
 
-            try
-            {
-                _inputManager.Dispose();
-            }
-            catch { }
+            DisposeInput();
 
             return;
 
@@ -333,6 +338,30 @@ namespace Ryujinx.Headless
                 {
                     _inputConfiguration.Add(inputConfig);
                 }
+            }
+        }
+
+        private static void DisposeInput()
+        {
+            try
+            {
+                _tomodachiIpcLifetime?.Dispose();
+            }
+            catch { }
+            finally
+            {
+                _tomodachiIpcLifetime = null;
+            }
+
+            try
+            {
+                _inputManager?.Dispose();
+            }
+            catch { }
+            finally
+            {
+                _inputManager = null;
+                _tomodachiInputControl = null;
             }
         }
 
