@@ -68,6 +68,7 @@ namespace Ryujinx.Ava.UI.Windows
 
         public InputManager InputManager { get; private set; }
         internal ITomodachiInputControl TomodachiInputControl { get; private set; }
+        internal IDisposable TomodachiIpcLifetime { get; private set; }
 
         public SettingsWindow SettingsWindow { get; set; }
 
@@ -117,6 +118,11 @@ namespace Ryujinx.Ava.UI.Windows
                     CommandLineState.EnableTomodachiInputProvider);
                 InputManager = new InputManager(keyboardDriver, bootstrap.GamepadDriver);
                 TomodachiInputControl = bootstrap.InputControl;
+                TomodachiIpcLifetime = bootstrap.IpcLifetime;
+                if (CommandLineState.EnableTomodachiInputProvider)
+                {
+                    Logger.Info?.PrintMsg(LogClass.Application, $"Tomodachi IPC status: {bootstrap.IpcStatus}");
+                }
 
                 _ = this.GetObservable(IsActiveProperty).Subscribe(it => ViewModel.IsActive = it);
                 this.ScalingChanged += OnScalingChanged;
@@ -644,6 +650,8 @@ namespace Ryujinx.Ava.UI.Windows
             }
 
             ApplicationLibrary.CancelLoading();
+            TomodachiIpcLifetime?.Dispose();
+            TomodachiIpcLifetime = null;
             InputManager.Dispose();
             _appLibraryAppsSubscription?.Dispose();
             Program.Exit();

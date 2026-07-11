@@ -21,6 +21,7 @@ namespace Ryujinx.Input.Tomodachi
         ProtocolFailure,
         ProviderDisposal,
         ProviderDisabled,
+        AuthenticationFailure,
         FocusClear,
         Rearmed,
     }
@@ -193,14 +194,17 @@ namespace Ryujinx.Input.Tomodachi
             }
         }
 
-        public void ObserveBridgeHeartbeat(TomodachiAuthorityEpoch authority)
+        public bool ObserveBridgeHeartbeat(TomodachiAuthorityEpoch authority)
         {
             lock (_lock)
             {
                 if (_armed && !_latched && !_disposed && authority == _authority)
                 {
                     _lastHeartbeatAt = _timeProvider.GetUtcNow();
+                    return true;
                 }
+
+                return false;
             }
         }
 

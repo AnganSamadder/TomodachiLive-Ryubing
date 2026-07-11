@@ -13,6 +13,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Ryujinx.Input\Ryujinx.Input.csproj" />
+    <ProjectReference Include="..\Ryujinx.Input.Ipc.TestHost\Ryujinx.Input.Ipc.TestHost.csproj" ReferenceOutputAssembly="false" />
   </ItemGroup>
 
 </Project>
