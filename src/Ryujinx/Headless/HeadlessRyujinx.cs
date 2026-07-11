@@ -23,6 +23,7 @@ using Ryujinx.HLE.HOS.Services.Account.Acc;
 using Ryujinx.Input;
 using Ryujinx.Input.HLE;
 using Ryujinx.Input.SDL3;
+using Ryujinx.Input.Tomodachi;
 using Ryujinx.SDL3.Common;
 using System;
 using System.Collections.Generic;
@@ -41,6 +42,7 @@ namespace Ryujinx.Headless
         private static LibHacHorizonManager _libHacHorizonManager;
         private static UserChannelPersistence _userChannelPersistence;
         private static InputManager _inputManager;
+        private static ITomodachiInputControl _tomodachiInputControl;
         private static Switch _emulationContext;
         private static WindowBase _window;
         private static WindowsMultimediaTimerResolution _windowsMultimediaTimerResolution;
@@ -181,7 +183,11 @@ namespace Ryujinx.Headless
             _accountManager = new AccountManager(_libHacHorizonManager.RyujinxClient, option.UserProfile);
             _userChannelPersistence = new UserChannelPersistence();
 
-            _inputManager = new InputManager(new SDL3KeyboardDriver(), new SDL3GamepadDriver());
+            TomodachiInputBootstrapResult bootstrap = TomodachiInputBootstrap.CreateGamepadDriver(
+                new SDL3GamepadDriver(),
+                option.EnableTomodachiInputProvider);
+            _inputManager = new InputManager(new SDL3KeyboardDriver(), bootstrap.GamepadDriver);
+            _tomodachiInputControl = bootstrap.InputControl;
 
             GraphicsConfig.EnableShaderCache = !option.DisableShaderCache;
 
