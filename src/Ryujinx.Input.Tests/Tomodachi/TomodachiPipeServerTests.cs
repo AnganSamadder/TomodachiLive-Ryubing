@@ -168,6 +168,31 @@ namespace Ryujinx.Input.Tests.Tomodachi
         }
 
         [Test]
+        public async Task OwnerStopThenFreshRearmDisconnectStillNeutralizesAndLatches()
+        {
+            await using Harness harness = new(watchdogTimeout: TimeSpan.FromMinutes(1));
+            NamedPipeClientStream client = await harness.ConnectAuthenticatedAsync();
+            using JsonDocument firstArm = await ArmAsync(client, "arm-before-owner-stop");
+            using JsonDocument ownerStop = await NeutralizeAsync(client, "stop-before-rearm");
+            harness.State.PollMappedSnapshot();
+            using JsonDocument secondArm = await ArmAsync(client, "arm-after-owner-stop");
+            using JsonDocument input = await InputAsync(client, "press-after-owner-stop", 1, "press");
+            Assert.That(harness.State.PollMappedSnapshot().Snapshot.IsPressed(GamepadButtonInputId.A), Is.True);
+
+            client.Dispose();
+            await WaitForAsync(() => harness.State.GetHealth().Latched);
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(firstArm.RootElement.GetProperty("armed").GetBoolean(), Is.True);
+                Assert.That(ownerStop.RootElement.GetProperty("latched").GetBoolean(), Is.True);
+                Assert.That(secondArm.RootElement.GetProperty("armed").GetBoolean(), Is.True);
+                Assert.That(harness.State.GetHealth().AllNeutral, Is.True);
+                Assert.That(harness.State.GetHealth().Latched, Is.True);
+            });
+        }
+
+        [Test]
         public async Task SecondServerCollisionDoesNotDisableFirstServer()
         {
             string pipeName = $"tomodachi-live-{Guid.NewGuid():N}";
@@ -384,13 +409,13 @@ namespace Ryujinx.Input.Tests.Tomodachi
             public TomodachiInputState State { get; }
             public TomodachiPipeServer Server { get; }
 
-            public Harness(string pipeName = null)
+            public Harness(string pipeName = null, TimeSpan? watchdogTimeout = null)
             {
                 PipeName = pipeName ?? $"tomodachi-live-{Guid.NewGuid():N}";
                 Dictionary<string, string> environment = TomodachiPipeOptionsTests.ValidEnvironment(PipeName);
                 Token = environment[TomodachiPipeOptions.PipeTokenEnvironmentVariable];
                 Assert.That(TomodachiPipeOptions.TryLoad(environment.GetValueOrDefault, ["ryujinx"], out TomodachiPipeOptions options, out _), Is.True);
-                State = new TomodachiInputState();
+                State = new TomodachiInputState(watchdogTimeout: watchdogTimeout);
                 Server = TomodachiPipeServer.Start(options, State);
             }
 

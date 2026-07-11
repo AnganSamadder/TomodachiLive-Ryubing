@@ -13,6 +13,18 @@ namespace Ryujinx.Input.Tests.Tomodachi
     public class TomodachiPipeProtocolTests
     {
         [Test]
+        public void HelloRejectsNonStringClientInstanceId()
+        {
+            byte[] payload = Encoding.UTF8.GetBytes(
+                "{\"protocol\":\"tomodachi-ipc/1\",\"type\":\"hello\",\"requestId\":\"hello\",\"clientInstanceId\":{\"nested\":\"value\"},\"token\":\"token\",\"sentAt\":\"2026-01-01T00:00:00Z\"}");
+
+            TomodachiPipeProtocolException exception = Assert.Throws<TomodachiPipeProtocolException>(
+                () => TomodachiPipeProtocol.ParseRequest(payload));
+
+            Assert.That(exception.Code, Is.EqualTo("invalid-request"));
+        }
+
+        [Test]
         public async Task FrameReaderRejectsTruncatedPrefixZeroOversizeAndTruncatedBody()
         {
             static MemoryStream Stream(params byte[] bytes) => new(bytes);

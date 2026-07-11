@@ -113,7 +113,6 @@ namespace Ryujinx.Input.Tomodachi.Ipc
 
         private async Task HandleConnectionAsync(Stream pipe, CancellationToken lifetimeToken)
         {
-            bool neutralized = false;
             NeutralizeReason disconnectReason = NeutralizeReason.Disconnected;
             try
             {
@@ -181,7 +180,6 @@ namespace Ryujinx.Input.Tomodachi.Ipc
                             break;
                         case "neutralize":
                             HandleNeutralize(root, response);
-                            neutralized = true;
                             break;
                         default:
                             throw new TomodachiPipeProtocolException("unknown-request-type");
@@ -215,10 +213,7 @@ namespace Ryujinx.Input.Tomodachi.Ipc
             }
             finally
             {
-                if (!neutralized)
-                {
-                    _control.NeutralizeAndLatch($"ipc-{Guid.NewGuid():N}", disconnectReason);
-                }
+                _control.NeutralizeAndLatch($"ipc-{Guid.NewGuid():N}", disconnectReason);
             }
         }
 

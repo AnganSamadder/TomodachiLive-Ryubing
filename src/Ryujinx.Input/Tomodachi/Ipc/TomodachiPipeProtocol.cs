@@ -152,7 +152,12 @@ namespace Ryujinx.Input.Tomodachi.Ipc
 
                 GetRequiredString(root, "requestId");
                 GetRequiredTimestamp(root, "sentAt");
-                if (!string.Equals(type, "hello", StringComparison.Ordinal))
+                if (string.Equals(type, "hello", StringComparison.Ordinal))
+                {
+                    GetRequiredString(root, "clientInstanceId");
+                    GetRequiredString(root, "token");
+                }
+                else
                 {
                     GetRequiredString(root, "traceId");
                 }
