@@ -292,6 +292,9 @@ namespace Ryujinx.Headless
         [Option("list-input-ids", Required = false, HelpText = "List input IDs.")]
         public bool ListInputIds { get; set; }
 
+        [Option("enable-tomodachi-input-provider", Required = false, Default = false, HelpText = "Enable the TomodachiLive virtual gamepad provider.")]
+        public bool EnableTomodachiInputProvider { get; set; }
+
         // System
 
         [Option("disable-ptc", Required = false, HelpText = "Disables profiled persistent translation cache.")]

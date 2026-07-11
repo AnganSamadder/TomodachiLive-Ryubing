@@ -57,6 +57,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Ryujinx.Audio.Backends.Soun
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Ryujinx.Input", "src\Ryujinx.Input\Ryujinx.Input.csproj", "{C16F112F-38C3-40BC-9F5F-4791112063D6}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Ryujinx.Input.Tests", "src\Ryujinx.Input.Tests\Ryujinx.Input.Tests.csproj", "{4D6800AC-707E-499E-931D-F47137716198}"
+EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Ryujinx.Input.SDL3", "src\Ryujinx.Input.SDL3\Ryujinx.Input.SDL3.csproj", "{D728444C-3D1F-4A0E-B4C9-5C9375D47EA3}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Ryujinx.Graphics.Nvdec.FFmpeg", "src\Ryujinx.Graphics.Nvdec.FFmpeg\Ryujinx.Graphics.Nvdec.FFmpeg.csproj", "{BEE1C184-C9A4-410B-8DFC-FB74D5C93AEB}"
@@ -392,6 +394,18 @@ Global
 		{C16F112F-38C3-40BC-9F5F-4791112063D6}.Release|x64.Build.0 = Release|Any CPU
 		{C16F112F-38C3-40BC-9F5F-4791112063D6}.Release|x86.ActiveCfg = Release|Any CPU
 		{C16F112F-38C3-40BC-9F5F-4791112063D6}.Release|x86.Build.0 = Release|Any CPU
+		{4D6800AC-707E-499E-931D-F47137716198}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4D6800AC-707E-499E-931D-F47137716198}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4D6800AC-707E-499E-931D-F47137716198}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{4D6800AC-707E-499E-931D-F47137716198}.Debug|x64.Build.0 = Debug|Any CPU
+		{4D6800AC-707E-499E-931D-F47137716198}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{4D6800AC-707E-499E-931D-F47137716198}.Debug|x86.Build.0 = Debug|Any CPU
+		{4D6800AC-707E-499E-931D-F47137716198}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4D6800AC-707E-499E-931D-F47137716198}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4D6800AC-707E-499E-931D-F47137716198}.Release|x64.ActiveCfg = Release|Any CPU
+		{4D6800AC-707E-499E-931D-F47137716198}.Release|x64.Build.0 = Release|Any CPU
+		{4D6800AC-707E-499E-931D-F47137716198}.Release|x86.ActiveCfg = Release|Any CPU
+		{4D6800AC-707E-499E-931D-F47137716198}.Release|x86.Build.0 = Release|Any CPU
 		{BEE1C184-C9A4-410B-8DFC-FB74D5C93AEB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{BEE1C184-C9A4-410B-8DFC-FB74D5C93AEB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BEE1C184-C9A4-410B-8DFC-FB74D5C93AEB}.Debug|x64.ActiveCfg = Debug|Any CPU
