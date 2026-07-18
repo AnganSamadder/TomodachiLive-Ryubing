@@ -13,26 +13,39 @@ namespace Ryujinx.Input.Tomodachi.Ipc
 {
     public sealed class TomodachiPipeServer : IAsyncDisposable, IDisposable
     {
+        private static readonly TimeSpan StatusProofMaximumAge = TimeSpan.FromSeconds(2);
         private readonly TomodachiPipeOptions _options;
         private readonly ITomodachiInputControl _control;
+        private readonly ITomodachiStatusProofSource _statusProofSource;
         private readonly CancellationTokenSource _lifetimeCancellation = new();
         private readonly SemaphoreSlim _sendLock = new(1, 1);
         private readonly string _providerInstanceId = $"ryubing-{Guid.NewGuid():N}";
         private NamedPipeServerStream _initialPipe;
         private NamedPipeServerStream _activePipe;
         private Task _runTask;
+        private long _proofEpoch;
+        private long? _lastProviderEpoch;
+        private DateTimeOffset? _lastProofObservedAt;
+        private string _proofIdentityDigest;
         private int _disposed;
 
-        private TomodachiPipeServer(TomodachiPipeOptions options, ITomodachiInputControl control)
+        private TomodachiPipeServer(
+            TomodachiPipeOptions options,
+            ITomodachiInputControl control,
+            ITomodachiStatusProofSource statusProofSource)
         {
             _options = options ?? throw new ArgumentNullException(nameof(options));
             _control = control ?? throw new ArgumentNullException(nameof(control));
+            _statusProofSource = statusProofSource;
             _initialPipe = CreatePipe(options.PipeName);
         }
 
-        public static TomodachiPipeServer Start(TomodachiPipeOptions options, ITomodachiInputControl control)
+        public static TomodachiPipeServer Start(
+            TomodachiPipeOptions options,
+            ITomodachiInputControl control,
+            ITomodachiStatusProofSource statusProofSource = null)
         {
-            TomodachiPipeServer server = new(options, control);
+            TomodachiPipeServer server = new(options, control, statusProofSource);
             server._runTask = server.RunAsync();
             return server;
         }
@@ -130,6 +143,7 @@ namespace Ryujinx.Input.Tomodachi.Ipc
                     ["type"] = "hello.ack",
                     ["requestId"] = RequiredString(helloRoot, "requestId"),
                     ["providerInstanceId"] = _providerInstanceId,
+                    ["providerKind"] = "provider",
                     ["capabilities"] = new Dictionary<string, object>
                     {
                         ["buttons"] = new[] { "A" },
@@ -177,6 +191,9 @@ namespace Ryujinx.Input.Tomodachi.Ipc
                             break;
                         case "health":
                             HandleHealth(response);
+                            break;
+                        case "status.proof":
+                            HandleStatusProof(response);
                             break;
                         case "neutralize":
                             HandleNeutralize(root, response);
@@ -356,6 +373,65 @@ namespace Ryujinx.Input.Tomodachi.Ipc
             response["queueDepth"] = health.QueueDepth;
             response["providerPoll"] = health.ProviderPoll;
             response["neutralGeneration"] = health.NeutralGeneration;
+        }
+
+        private void HandleStatusProof(Dictionary<string, object> response)
+        {
+            if (_statusProofSource is null || !_statusProofSource.TrySample(out TomodachiStatusProofSnapshot snapshot))
+            {
+                throw new TomodachiPipeProtocolException("status-proof-unavailable");
+            }
+
+            DateTimeOffset now = DateTimeOffset.UtcNow;
+            TimeSpan age = now - snapshot.ObservedAt;
+            if (snapshot.State is not ("paused" or "exited" or "running" or "unknown") ||
+                !IsSha256Digest(snapshot.GameSaveIdentityDigest) ||
+                snapshot.ProviderEpoch < 0 ||
+                snapshot.ObservedAt.Offset != TimeSpan.Zero ||
+                age > StatusProofMaximumAge ||
+                age < TimeSpan.Zero ||
+                _lastProviderEpoch.HasValue && snapshot.ProviderEpoch < _lastProviderEpoch.Value ||
+                _lastProofObservedAt.HasValue && snapshot.ObservedAt < _lastProofObservedAt.Value ||
+                _proofIdentityDigest is not null && !string.Equals(_proofIdentityDigest, snapshot.GameSaveIdentityDigest, StringComparison.Ordinal))
+            {
+                throw new TomodachiPipeProtocolException("status-proof-invalid");
+            }
+
+            long proofEpoch = Interlocked.Increment(ref _proofEpoch);
+            if (proofEpoch <= 0)
+            {
+                throw new TomodachiPipeProtocolException("status-proof-epoch-exhausted");
+            }
+
+            _lastProviderEpoch = snapshot.ProviderEpoch;
+            _lastProofObservedAt = snapshot.ObservedAt;
+            _proofIdentityDigest ??= snapshot.GameSaveIdentityDigest;
+            response["state"] = snapshot.State;
+            response["gameSaveIdentityDigest"] = snapshot.GameSaveIdentityDigest;
+            response["providerInstanceId"] = _providerInstanceId;
+            response["providerEpoch"] = snapshot.ProviderEpoch;
+            response["proofEpoch"] = proofEpoch;
+            response["observedAt"] = snapshot.ObservedAt.UtcDateTime.ToString("O", CultureInfo.InvariantCulture);
+        }
+
+        private static bool IsSha256Digest(string value)
+        {
+            const string prefix = "sha256:";
+            if (value is null || value.Length != prefix.Length + 64 || !value.StartsWith(prefix, StringComparison.Ordinal))
+            {
+                return false;
+            }
+
+            for (int index = prefix.Length; index < value.Length; index++)
+            {
+                char character = value[index];
+                if (!(character is >= '0' and <= '9' or >= 'a' and <= 'f'))
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
 
         private void HandleNeutralize(JsonElement root, Dictionary<string, object> response)

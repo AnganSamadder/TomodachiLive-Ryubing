@@ -1,5 +1,10 @@
 using CommandLine;
 using Gommon;
+using LibHac.Fs.Shim;
+using SaveDataFilter = LibHac.Fs.SaveDataFilter;
+using SaveDataInfo = LibHac.Fs.SaveDataInfo;
+using SaveDataSpaceId = LibHac.Fs.SaveDataSpaceId;
+using SaveDataType = LibHac.Fs.SaveDataType;
 using Ryujinx.Ava;
 using Ryujinx.Ava.Systems.Configuration;
 using Ryujinx.Common;
@@ -24,6 +29,7 @@ using Ryujinx.Input;
 using Ryujinx.Input.HLE;
 using Ryujinx.Input.SDL3;
 using Ryujinx.Input.Tomodachi;
+using Ryujinx.Input.Tomodachi.Ipc;
 using Ryujinx.SDL3.Common;
 using System;
 using System.Collections.Generic;
@@ -43,6 +49,7 @@ namespace Ryujinx.Headless
         private static UserChannelPersistence _userChannelPersistence;
         private static InputManager _inputManager;
         private static ITomodachiInputControl _tomodachiInputControl;
+        private static TomodachiStatusProofAuthority _tomodachiStatusProofAuthority;
         private static IDisposable _tomodachiIpcLifetime;
         private static Switch _emulationContext;
         private static WindowBase _window;
@@ -189,6 +196,7 @@ namespace Ryujinx.Headless
                 option.EnableTomodachiInputProvider);
             _inputManager = new InputManager(new SDL3KeyboardDriver(), bootstrap.GamepadDriver);
             _tomodachiInputControl = bootstrap.InputControl;
+            _tomodachiStatusProofAuthority = bootstrap.StatusProofAuthority;
             _tomodachiIpcLifetime = bootstrap.IpcLifetime;
             if (option.EnableTomodachiInputProvider)
             {
@@ -358,10 +366,17 @@ namespace Ryujinx.Headless
                 _inputManager?.Dispose();
             }
             catch { }
+
+            try
+            {
+                _tomodachiStatusProofAuthority?.Dispose();
+            }
+            catch { }
             finally
             {
                 _inputManager = null;
                 _tomodachiInputControl = null;
+                _tomodachiStatusProofAuthority = null;
             }
         }
 
@@ -411,6 +426,14 @@ namespace Ryujinx.Headless
 
             _window.Execute();
 
+            _tomodachiStatusProofAuthority?.MarkExited();
+            if (_tomodachiStatusProofAuthority is not null)
+            {
+                // Keep the authenticated pipe alive long enough for the real exit observation
+                // to predate the host's zero-future-skew proof request.
+                Thread.Sleep(TimeSpan.FromMilliseconds(250));
+            }
+
             _emulationContext.Dispose();
             _window.Dispose();
 
@@ -418,6 +441,59 @@ namespace Ryujinx.Headless
             {
                 _windowsMultimediaTimerResolution?.Dispose();
                 _windowsMultimediaTimerResolution = null;
+            }
+        }
+
+        private static string SampleTomodachiRuntimeState()
+        {
+            Switch context = Volatile.Read(ref _emulationContext);
+            if (context?.Processes.ActiveApplication is null)
+            {
+                return "unknown";
+            }
+
+            return context.System.IsPaused ? "paused" : "running";
+        }
+
+        private static bool TryResolveActiveSavePath(out string savePath)
+        {
+            savePath = null;
+            try
+            {
+                if (_emulationContext?.Processes.ActiveApplication is not { } activeApplication ||
+                    activeApplication.Identity.ApplicationId == 0 ||
+                    _accountManager?.LastOpenedUser is null)
+                {
+                    return false;
+                }
+
+                SaveDataFilter filter = SaveDataFilter.Make(
+                    activeApplication.Identity.ApplicationId,
+                    SaveDataType.Account,
+                    _accountManager.LastOpenedUser.UserId.ToLibHac(),
+                    saveDataId: default,
+                    index: default);
+                var result = _libHacHorizonManager.RyujinxClient.Fs.FindSaveDataWithFilter(
+                    out SaveDataInfo saveDataInfo,
+                    SaveDataSpaceId.User,
+                    in filter);
+                if (result.IsFailure())
+                {
+                    return false;
+                }
+
+                string saveRoot = Path.Combine(VirtualFileSystem.GetNandPath(), $"user/save/{saveDataInfo.SaveDataId:x16}");
+                string committedPath = Path.Combine(saveRoot, "0");
+                string workingPath = Path.Combine(saveRoot, "1");
+                savePath = Directory.Exists(committedPath)
+                    ? committedPath
+                    : Directory.Exists(workingPath) ? workingPath : null;
+                return savePath is not null;
+            }
+            catch
+            {
+                savePath = null;
+                return false;
             }
         }
 
@@ -547,6 +623,13 @@ namespace Ryujinx.Headless
                 _emulationContext.Dispose();
 
                 return false;
+            }
+
+            if (_tomodachiStatusProofAuthority is not null &&
+                (!TryResolveActiveSavePath(out string activeSavePath) ||
+                 !_tomodachiStatusProofAuthority.TryBind(activeSavePath, SampleTomodachiRuntimeState)))
+            {
+                Logger.Warning?.PrintMsg(LogClass.Application, "Tomodachi status proof unavailable: save identity is not bound to the active emulator save.");
             }
 
             SetupProgressHandler();

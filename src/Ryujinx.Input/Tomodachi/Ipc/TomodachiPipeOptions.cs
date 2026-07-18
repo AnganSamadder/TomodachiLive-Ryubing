@@ -8,22 +8,38 @@ namespace Ryujinx.Input.Tomodachi.Ipc
     public sealed class TomodachiPipeOptions
     {
         private const int MaxStringBytes = 512;
+        private const int MaxIdentityPathBytes = 4096;
         public const string PipeNameEnvironmentVariable = "TOMODACHI_RYUBING_PIPE_NAME";
         public const string PipeTokenEnvironmentVariable = "TOMODACHI_RYUBING_PIPE_TOKEN";
         public const string RequestTimeoutEnvironmentVariable = "TOMODACHI_RYUBING_PIPE_REQUEST_TIMEOUT_MS";
+        public const string StatusProofIdentitySavePathEnvironmentVariable = "TOMODACHI_SAVE_PATH";
+        public const string StatusProofLocalSavePathEnvironmentVariable = "TOMODACHI_RYUBING_STATUS_PROOF_LOCAL_SAVE_PATH";
+        public const string StatusProofActiveSessionPathEnvironmentVariable = "TOMODACHI_SAVE_ACTIVE_SESSION_PATH";
         public static readonly TimeSpan DefaultRequestTimeout = TimeSpan.FromSeconds(5);
 
         private readonly byte[] _tokenBytes;
 
         public string PipeName { get; }
         public TimeSpan RequestTimeout { get; }
+        public string StatusProofIdentitySavePath { get; }
+        public string StatusProofLocalSavePath { get; }
+        public string StatusProofActiveSessionPath { get; }
         internal ReadOnlySpan<byte> TokenBytes => _tokenBytes;
 
-        private TomodachiPipeOptions(string pipeName, byte[] tokenBytes, TimeSpan requestTimeout)
+        private TomodachiPipeOptions(
+            string pipeName,
+            byte[] tokenBytes,
+            TimeSpan requestTimeout,
+            string statusProofIdentitySavePath,
+            string statusProofLocalSavePath,
+            string statusProofActiveSessionPath)
         {
             PipeName = pipeName;
             _tokenBytes = tokenBytes;
             RequestTimeout = requestTimeout;
+            StatusProofIdentitySavePath = statusProofIdentitySavePath;
+            StatusProofLocalSavePath = statusProofLocalSavePath;
+            StatusProofActiveSessionPath = statusProofActiveSessionPath;
         }
 
         public static bool TryLoad(
@@ -68,7 +84,27 @@ namespace Ryujinx.Input.Tomodachi.Ipc
                 requestTimeout = TimeSpan.FromMilliseconds(timeoutMs);
             }
 
-            options = new TomodachiPipeOptions(pipeName, tokenBytes, requestTimeout);
+            string identitySavePath = TrimToNull(getEnvironmentVariable(StatusProofIdentitySavePathEnvironmentVariable));
+            string localSavePath = TrimToNull(getEnvironmentVariable(StatusProofLocalSavePathEnvironmentVariable));
+            string activeSessionPath = TrimToNull(getEnvironmentVariable(StatusProofActiveSessionPathEnvironmentVariable));
+            if (identitySavePath is null && (localSavePath is not null || activeSessionPath is not null) ||
+                !IsValidIdentityPath(identitySavePath) ||
+                !IsValidIdentityPath(localSavePath) ||
+                !IsValidIdentityPath(activeSessionPath))
+            {
+                options = null;
+                disabledReason = "invalid-configuration";
+                return false;
+            }
+
+            localSavePath ??= identitySavePath;
+            options = new TomodachiPipeOptions(
+                pipeName,
+                tokenBytes,
+                requestTimeout,
+                identitySavePath,
+                localSavePath,
+                activeSessionPath);
             disabledReason = null;
             return true;
         }
@@ -76,6 +112,16 @@ namespace Ryujinx.Input.Tomodachi.Ipc
         public static bool TryLoadFromProcess(out TomodachiPipeOptions options, out string disabledReason)
         {
             return TryLoad(Environment.GetEnvironmentVariable, Environment.GetCommandLineArgs(), out options, out disabledReason);
+        }
+
+        private static string TrimToNull(string value)
+        {
+            return string.IsNullOrWhiteSpace(value) ? null : value.Trim();
+        }
+
+        private static bool IsValidIdentityPath(string value)
+        {
+            return value is null || Encoding.UTF8.GetByteCount(value) <= MaxIdentityPathBytes;
         }
 
         private static void RejectCommandLineCredentials(IReadOnlyList<string> arguments)

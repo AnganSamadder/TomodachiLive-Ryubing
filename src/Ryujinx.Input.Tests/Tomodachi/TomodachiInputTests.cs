@@ -396,6 +396,23 @@ namespace Ryujinx.Input.Tests.Tomodachi
         }
 
         [Test]
+        public void ProviderPollingIsReadyForNonMutatingProbeBeforeArm()
+        {
+            using TomodachiInputState state = new();
+
+            state.PollMappedSnapshot();
+            ProviderHealth health = state.GetHealth();
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(health.Armed, Is.False);
+                Assert.That(health.Polling, Is.True);
+                Assert.That(health.Ready, Is.True);
+                Assert.That(health.AllNeutral, Is.True);
+            });
+        }
+
+        [Test]
         public void ProviderHealthDistinguishesReadyPollingStaleLatchedAndAllNeutral()
         {
             ManualTimeProvider clock = new(DateTimeOffset.Parse("2026-01-01T00:00:00Z"));

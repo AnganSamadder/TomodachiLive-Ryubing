@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.IO.Pipes;
+using System.Linq;
 using System.Text;
 using System.Text.Json;
 using System.Threading;
@@ -332,6 +333,50 @@ namespace Ryujinx.Input.Tests.Tomodachi
         }
 
         [Test]
+        public async Task AuthenticatedStatusProofIsExactMonotonicAndDoesNotMutateInputState()
+        {
+            DateTimeOffset now = DateTimeOffset.UtcNow;
+            DateTimeOffset observedAt = new(
+                now.Year,
+                now.Month,
+                now.Day,
+                now.Hour,
+                now.Minute,
+                now.Second,
+                TimeSpan.Zero);
+            TestStatusProofSource source = new(new TomodachiStatusProofSnapshot(
+                "paused",
+                $"sha256:{new string('a', 64)}",
+                7,
+                observedAt));
+            await using Harness harness = new(statusProofSource: source);
+            using NamedPipeClientStream client = await harness.ConnectAuthenticatedAsync();
+            ProviderHealth before = harness.State.GetHealth();
+
+            using JsonDocument first = await StatusProofAsync(client, "proof-1");
+            using JsonDocument second = await StatusProofAsync(client, "proof-2");
+            ProviderHealth after = harness.State.GetHealth();
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(first.RootElement.EnumerateObject().Select(property => property.Name), Is.EquivalentTo(new[]
+                {
+                    "protocol", "type", "requestId", "traceId", "state", "gameSaveIdentityDigest",
+                    "providerInstanceId", "providerEpoch", "proofEpoch", "observedAt",
+                }));
+                Assert.That(first.RootElement.GetProperty("type").GetString(), Is.EqualTo("status.proof.ack"));
+                Assert.That(first.RootElement.GetProperty("state").GetString(), Is.EqualTo("paused"));
+                Assert.That(first.RootElement.GetProperty("gameSaveIdentityDigest").GetString(), Is.EqualTo($"sha256:{new string('a', 64)}"));
+                Assert.That(first.RootElement.GetProperty("providerEpoch").GetInt64(), Is.EqualTo(7));
+                Assert.That(first.RootElement.GetProperty("observedAt").GetString(), Is.EqualTo(observedAt.UtcDateTime.ToString("O")));
+                Assert.That(second.RootElement.GetProperty("proofEpoch").GetInt64(), Is.GreaterThan(first.RootElement.GetProperty("proofEpoch").GetInt64()));
+                Assert.That(first.RootElement.GetProperty("providerInstanceId").GetString(), Is.EqualTo(second.RootElement.GetProperty("providerInstanceId").GetString()));
+                Assert.That(after, Is.EqualTo(before));
+                Assert.That(source.SampleCount, Is.EqualTo(2));
+            });
+        }
+
+        [Test]
         public async Task NonCanonicalInputEnumIsProtocolFailureAndNeutralizes()
         {
             await using Harness harness = new();
@@ -364,6 +409,9 @@ namespace Ryujinx.Input.Tests.Tomodachi
 
         private static Task<JsonDocument> NeutralizeAsync(NamedPipeClientStream client, string stopId) =>
             RequestAsync(client, $"{{\"protocol\":\"tomodachi-ipc/1\",\"type\":\"neutralize\",\"requestId\":\"neutral-{stopId}\",\"traceId\":\"trace-neutral\",\"sentAt\":\"2026-01-01T00:00:00Z\",\"stopId\":\"{stopId}\",\"reason\":\"owner-stop\"}}");
+
+        private static Task<JsonDocument> StatusProofAsync(NamedPipeClientStream client, string requestId) =>
+            RequestAsync(client, $"{{\"protocol\":\"tomodachi-ipc/1\",\"type\":\"status.proof\",\"requestId\":\"{requestId}\",\"traceId\":\"trace-{requestId}\",\"sentAt\":\"2026-01-01T00:00:00Z\"}}");
 
         private static async Task<JsonDocument> RequestAsync(NamedPipeClientStream client, string json)
         {
@@ -409,14 +457,14 @@ namespace Ryujinx.Input.Tests.Tomodachi
             public TomodachiInputState State { get; }
             public TomodachiPipeServer Server { get; }
 
-            public Harness(string pipeName = null, TimeSpan? watchdogTimeout = null)
+            public Harness(string pipeName = null, TimeSpan? watchdogTimeout = null, ITomodachiStatusProofSource statusProofSource = null)
             {
                 PipeName = pipeName ?? $"tomodachi-live-{Guid.NewGuid():N}";
                 Dictionary<string, string> environment = TomodachiPipeOptionsTests.ValidEnvironment(PipeName);
                 Token = environment[TomodachiPipeOptions.PipeTokenEnvironmentVariable];
                 Assert.That(TomodachiPipeOptions.TryLoad(environment.GetValueOrDefault, ["ryujinx"], out TomodachiPipeOptions options, out _), Is.True);
                 State = new TomodachiInputState(watchdogTimeout: watchdogTimeout);
-                Server = TomodachiPipeServer.Start(options, State);
+                Server = TomodachiPipeServer.Start(options, State, statusProofSource);
             }
 
             public async Task<NamedPipeClientStream> ConnectAsync()
@@ -431,7 +479,11 @@ namespace Ryujinx.Input.Tests.Tomodachi
                 NamedPipeClientStream client = await ConnectAsync();
                 await SendAsync(client, $"{{\"protocol\":\"tomodachi-ipc/1\",\"type\":\"hello\",\"requestId\":\"hello-1\",\"clientInstanceId\":\"bridge-instance\",\"token\":\"{Token}\",\"sentAt\":\"2026-01-01T00:00:00Z\"}}");
                 using JsonDocument hello = await ReceiveAsync(client);
-                Assert.That(hello.RootElement.GetProperty("type").GetString(), Is.EqualTo("hello.ack"));
+                Assert.Multiple(() =>
+                {
+                    Assert.That(hello.RootElement.GetProperty("type").GetString(), Is.EqualTo("hello.ack"));
+                    Assert.That(hello.RootElement.GetProperty("providerKind").GetString(), Is.EqualTo("provider"));
+                });
                 return client;
             }
 
@@ -448,6 +500,18 @@ namespace Ryujinx.Input.Tests.Tomodachi
             {
                 await Server.DisposeAsync();
                 DisposeStateOnly();
+            }
+        }
+
+        private sealed class TestStatusProofSource(TomodachiStatusProofSnapshot snapshot) : ITomodachiStatusProofSource
+        {
+            public int SampleCount { get; private set; }
+
+            public bool TrySample(out TomodachiStatusProofSnapshot sampled)
+            {
+                SampleCount++;
+                sampled = snapshot;
+                return true;
             }
         }
     }
