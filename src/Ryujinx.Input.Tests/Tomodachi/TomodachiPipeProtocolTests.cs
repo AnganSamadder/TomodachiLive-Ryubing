@@ -4,6 +4,7 @@ using System;
 using System.Buffers.Binary;
 using System.IO;
 using System.Text;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -130,6 +131,30 @@ namespace Ryujinx.Input.Tests.Tomodachi
                 TomodachiPipeProtocol.ParseRequest(missingArmId));
 
             Assert.That(exception.Code, Is.EqualTo("invalid-request"));
+        }
+
+        [Test]
+        public void StatusProofRequiresOnlyExactReadOnlyCorrelationFields()
+        {
+            byte[] valid = Encoding.UTF8.GetBytes(
+                "{\"protocol\":\"tomodachi-ipc/1\",\"type\":\"status.proof\",\"requestId\":\"proof-1\",\"traceId\":\"trace-proof\",\"sentAt\":\"2026-01-01T00:00:00Z\"}");
+            byte[] missingTrace = Encoding.UTF8.GetBytes(
+                "{\"protocol\":\"tomodachi-ipc/1\",\"type\":\"status.proof\",\"requestId\":\"proof-1\",\"sentAt\":\"2026-01-01T00:00:00Z\"}");
+            byte[] extra = Encoding.UTF8.GetBytes(
+                "{\"protocol\":\"tomodachi-ipc/1\",\"type\":\"status.proof\",\"requestId\":\"proof-1\",\"traceId\":\"trace-proof\",\"sentAt\":\"2026-01-01T00:00:00Z\",\"state\":\"paused\"}");
+
+            using JsonDocument parsed = TomodachiPipeProtocol.ParseRequest(valid);
+            TomodachiPipeProtocolException missing = Assert.Throws<TomodachiPipeProtocolException>(
+                () => TomodachiPipeProtocol.ParseRequest(missingTrace));
+            TomodachiPipeProtocolException unknown = Assert.Throws<TomodachiPipeProtocolException>(
+                () => TomodachiPipeProtocol.ParseRequest(extra));
+
+            Assert.Multiple(() =>
+            {
+                Assert.That(parsed.RootElement.GetProperty("type").GetString(), Is.EqualTo("status.proof"));
+                Assert.That(missing.Code, Is.EqualTo("invalid-request"));
+                Assert.That(unknown.Code, Is.EqualTo("unknown-property"));
+            });
         }
     }
 }

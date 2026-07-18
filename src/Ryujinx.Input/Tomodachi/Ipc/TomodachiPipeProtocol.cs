@@ -42,6 +42,7 @@ namespace Ryujinx.Input.Tomodachi.Ipc
                 ["input"] = ["protocol", "type", "requestId", "traceId", "sentAt", "commandId", "authority", "sequence", "expiresAt", "button", "action"],
                 ["receipt.get"] = ["protocol", "type", "requestId", "traceId", "sentAt", "commandId"],
                 ["health"] = ["protocol", "type", "requestId", "traceId", "sentAt"],
+                ["status.proof"] = ["protocol", "type", "requestId", "traceId", "sentAt"],
                 ["neutralize"] = ["protocol", "type", "requestId", "traceId", "sentAt", "stopId", "reason"],
             };
 

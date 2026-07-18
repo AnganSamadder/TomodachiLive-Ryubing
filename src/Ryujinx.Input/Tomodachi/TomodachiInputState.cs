@@ -350,7 +350,7 @@ namespace Ryujinx.Input.Tomodachi
                 CheckWatchdog();
                 DateTimeOffset now = _timeProvider.GetUtcNow();
                 bool polling = _lastPollAt.HasValue && now - _lastPollAt.Value <= _watchdogTimeout;
-                bool ready = _armed && polling && !_stale && !_latched && !_disposed;
+                bool ready = polling && !_stale && !_latched && !_disposed;
                 return new ProviderHealth(
                     Enabled: true,
                     Armed: _armed,

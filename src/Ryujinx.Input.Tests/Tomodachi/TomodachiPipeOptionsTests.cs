@@ -4,6 +4,7 @@ using Ryujinx.Input.Tomodachi;
 using Ryujinx.Input.Tomodachi.Ipc;
 using System;
 using System.Collections.Generic;
+using System.IO;
 
 namespace Ryujinx.Input.Tests.Tomodachi
 {
@@ -61,6 +62,100 @@ namespace Ryujinx.Input.Tests.Tomodachi
                 Assert.That(options.RequestTimeout, Is.EqualTo(TimeSpan.FromMilliseconds(1500)));
                 Assert.That(options.ToString(), Does.Not.Contain(environment[TomodachiPipeOptions.PipeTokenEnvironmentVariable]));
                 Assert.That(disabledReason, Is.Null);
+            });
+        }
+
+        [Test]
+        public void StatusProofIdentityConfigurationIsEnvironmentOnlyAndBootstrapExposesAuthority()
+        {
+            string localSavePath = Directory.CreateTempSubdirectory("tomodachi-config-").FullName;
+            try
+            {
+                Dictionary<string, string> environment = ValidEnvironment();
+                environment[TomodachiPipeOptions.StatusProofIdentitySavePathEnvironmentVariable] = "/mnt/c/private/save";
+                environment[TomodachiPipeOptions.StatusProofLocalSavePathEnvironmentVariable] = localSavePath;
+                environment[TomodachiPipeOptions.StatusProofActiveSessionPathEnvironmentVariable] = "/mnt/c/private/session.json";
+
+                Assert.That(TomodachiPipeOptions.TryLoad(
+                    environment.GetValueOrDefault,
+                    ["ryujinx"],
+                    out TomodachiPipeOptions options,
+                    out string disabledReason), Is.True);
+                Assert.Multiple(() =>
+                {
+                    Assert.That(options.StatusProofIdentitySavePath, Is.EqualTo("/mnt/c/private/save"));
+                    Assert.That(options.StatusProofLocalSavePath, Is.EqualTo(localSavePath));
+                    Assert.That(options.StatusProofActiveSessionPath, Is.EqualTo("/mnt/c/private/session.json"));
+                    Assert.That(disabledReason, Is.Null);
+                });
+
+                using EmptyGamepadDriver primary = new();
+                TomodachiInputBootstrapResult result = TomodachiInputBootstrap.CreateGamepadDriver(
+                    primary,
+                    enableProvider: true,
+                    getEnvironmentVariable: environment.GetValueOrDefault,
+                    commandLineArguments: ["ryujinx"]);
+                try
+                {
+                    Assert.That(result.StatusProofAuthority, Is.Not.Null);
+                    Assert.That(result.StatusProofAuthority.TrySample(out _), Is.False);
+                }
+                finally
+                {
+                    result.IpcLifetime?.Dispose();
+                    result.StatusProofAuthority?.Dispose();
+                    result.GamepadDriver.Dispose();
+                }
+            }
+            finally
+            {
+                Directory.Delete(localSavePath, recursive: true);
+            }
+        }
+
+        [Test]
+        public void InvalidLocalStatusProofPathDisablesIpcWithoutCrashingBootstrap()
+        {
+            Dictionary<string, string> environment = ValidEnvironment();
+            environment[TomodachiPipeOptions.StatusProofIdentitySavePathEnvironmentVariable] = "/private/save";
+            environment[TomodachiPipeOptions.StatusProofLocalSavePathEnvironmentVariable] = "invalid\0path";
+
+            using EmptyGamepadDriver primary = new();
+            TomodachiInputBootstrapResult result = TomodachiInputBootstrap.CreateGamepadDriver(
+                primary,
+                enableProvider: true,
+                getEnvironmentVariable: environment.GetValueOrDefault,
+                commandLineArguments: ["ryujinx"]);
+            try
+            {
+                Assert.Multiple(() =>
+                {
+                    Assert.That(result.IpcLifetime, Is.Null);
+                    Assert.That(result.StatusProofAuthority, Is.Null);
+                    Assert.That(result.IpcStatus, Is.EqualTo("invalid-configuration"));
+                });
+            }
+            finally
+            {
+                result.GamepadDriver.Dispose();
+            }
+        }
+
+        [Test]
+        public void ActiveSessionIdentityWithoutSaveIdentityIsRejected()
+        {
+            Dictionary<string, string> environment = ValidEnvironment();
+            environment[TomodachiPipeOptions.StatusProofActiveSessionPathEnvironmentVariable] = "/private/session.json";
+
+            Assert.That(TomodachiPipeOptions.TryLoad(
+                environment.GetValueOrDefault,
+                ["ryujinx"],
+                out TomodachiPipeOptions options,
+                out string disabledReason), Is.False);
+            Assert.Multiple(() =>
+            {
+                Assert.That(options, Is.Null);
+                Assert.That(disabledReason, Is.EqualTo("invalid-configuration"));
             });
         }
 
