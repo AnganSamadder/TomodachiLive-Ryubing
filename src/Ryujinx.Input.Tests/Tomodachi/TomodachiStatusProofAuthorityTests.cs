@@ -60,6 +60,34 @@ namespace Ryujinx.Input.Tests.Tomodachi
             }
         }
 
+        [Test]
+        public void FailedRebindInvalidatesPreviouslyEligibleExitProof()
+        {
+            string actualSavePath = Directory.CreateTempSubdirectory("tomodachi-proof-").FullName;
+            string otherSavePath = Directory.CreateTempSubdirectory("tomodachi-other-").FullName;
+            try
+            {
+                ManualTimeProvider time = new(new DateTimeOffset(2026, 7, 18, 20, 0, 0, TimeSpan.Zero));
+                using TomodachiStatusProofAuthority authority = new("identity", actualSavePath, null, time);
+
+                Assert.That(authority.TryBind(actualSavePath, () => "running"), Is.True);
+                authority.MarkExited();
+                time.Advance(TimeSpan.FromMilliseconds(250));
+                Assert.That(authority.TrySample(out TomodachiStatusProofSnapshot exited), Is.True);
+                Assert.That(exited.State, Is.EqualTo("exited"));
+
+                Assert.That(authority.TryBind(otherSavePath, () => "running"), Is.False);
+                time.Advance(TimeSpan.FromMilliseconds(500));
+
+                Assert.That(authority.TrySample(out _), Is.False);
+            }
+            finally
+            {
+                Directory.Delete(actualSavePath, recursive: true);
+                Directory.Delete(otherSavePath, recursive: true);
+            }
+        }
+
         [TestCase("")]
         [TestCase("not-canonical")]
         public void NonCanonicalRuntimeStateNeverProducesProof(string state)

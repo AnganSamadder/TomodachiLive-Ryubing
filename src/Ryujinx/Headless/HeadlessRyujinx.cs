@@ -501,6 +501,8 @@ namespace Ryujinx.Headless
         {
             string path = options.InputPath;
 
+            _tomodachiStatusProofAuthority?.InvalidateBinding();
+
             Logger.RestartTime();
 
             WindowBase window = CreateWindow(options);
@@ -625,11 +627,13 @@ namespace Ryujinx.Headless
                 return false;
             }
 
-            if (_tomodachiStatusProofAuthority is not null &&
-                (!TryResolveActiveSavePath(out string activeSavePath) ||
-                 !_tomodachiStatusProofAuthority.TryBind(activeSavePath, SampleTomodachiRuntimeState)))
+            if (_tomodachiStatusProofAuthority is not null)
             {
-                Logger.Warning?.PrintMsg(LogClass.Application, "Tomodachi status proof unavailable: save identity is not bound to the active emulator save.");
+                if (!TryResolveActiveSavePath(out string activeSavePath) ||
+                    !_tomodachiStatusProofAuthority.TryBind(activeSavePath, SampleTomodachiRuntimeState))
+                {
+                    Logger.Warning?.PrintMsg(LogClass.Application, "Tomodachi status proof unavailable: save identity is not bound to the active emulator save.");
+                }
             }
 
             SetupProgressHandler();

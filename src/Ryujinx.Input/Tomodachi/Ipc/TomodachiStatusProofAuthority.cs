@@ -48,44 +48,59 @@ namespace Ryujinx.Input.Tomodachi.Ipc
         public bool TryBind(string emulatorSavePath, Func<string> sampleState)
         {
             ArgumentNullException.ThrowIfNull(sampleState);
-            string normalizedEmulatorPath;
-            try
-            {
-                normalizedEmulatorPath = NormalizeLocalPath(emulatorSavePath);
-            }
-            catch (ArgumentException)
-            {
-                return false;
-            }
-
-            StringComparison comparison = OperatingSystem.IsWindows()
-                ? StringComparison.OrdinalIgnoreCase
-                : StringComparison.Ordinal;
-            if (!Directory.Exists(_localSavePath) ||
-                !Directory.Exists(normalizedEmulatorPath) ||
-                !string.Equals(_localSavePath, normalizedEmulatorPath, comparison))
-            {
-                return false;
-            }
-
             lock (_gate)
             {
-                if (_disposed || _providerEpoch == long.MaxValue)
+                if (_disposed)
+                {
+                    return false;
+                }
+
+                InvalidateBindingCore();
+                if (_providerEpoch == long.MaxValue)
+                {
+                    return false;
+                }
+
+                string normalizedEmulatorPath;
+                try
+                {
+                    normalizedEmulatorPath = NormalizeLocalPath(emulatorSavePath);
+                }
+                catch (ArgumentException)
+                {
+                    return false;
+                }
+
+                StringComparison comparison = OperatingSystem.IsWindows()
+                    ? StringComparison.OrdinalIgnoreCase
+                    : StringComparison.Ordinal;
+                if (!Directory.Exists(_localSavePath) ||
+                    !Directory.Exists(normalizedEmulatorPath) ||
+                    !string.Equals(_localSavePath, normalizedEmulatorPath, comparison))
                 {
                     return false;
                 }
 
                 _sampleState = sampleState;
-                _exited = false;
                 _providerEpoch++;
-                _observations.Clear();
                 ObserveCore();
-                _observationTimer ??= _timeProvider.CreateTimer(
+                _observationTimer = _timeProvider.CreateTimer(
                     _ => Observe(),
                     null,
                     ObservationInterval,
                     ObservationInterval);
                 return true;
+            }
+        }
+
+        public void InvalidateBinding()
+        {
+            lock (_gate)
+            {
+                if (!_disposed)
+                {
+                    InvalidateBindingCore();
+                }
             }
         }
 
@@ -138,10 +153,7 @@ namespace Ryujinx.Input.Tomodachi.Ipc
                 }
 
                 _disposed = true;
-                _observationTimer?.Dispose();
-                _observationTimer = null;
-                _sampleState = null;
-                _observations.Clear();
+                InvalidateBindingCore();
             }
         }
 
@@ -188,6 +200,15 @@ namespace Ryujinx.Input.Tomodachi.Ipc
                 _identityDigest,
                 _providerEpoch,
                 _timeProvider.GetUtcNow()));
+        }
+
+        private void InvalidateBindingCore()
+        {
+            _observationTimer?.Dispose();
+            _observationTimer = null;
+            _sampleState = null;
+            _exited = false;
+            _observations.Clear();
         }
 
         private static string CreateIdentityDigest(string savePath, string activeSessionPath)
